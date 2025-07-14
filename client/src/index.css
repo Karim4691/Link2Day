@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+    --font-sacramento: Sacramento, sans-serif;
+    --color-gold: #FFD700;
+}
