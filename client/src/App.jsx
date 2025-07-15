@@ -3,6 +3,7 @@ import Authentication from './pages/Authentication.jsx'
 import Private from "./pages/Private.jsx"
 import YourEvents from "./pages/YourEvents.jsx"
 import Home from './pages/Home.jsx'
+import UserProfile from './pages/UserProfile.jsx'
 import { onAuthStateChanged } from "firebase/auth"
 import { useEffect, useState } from "react"
 import { ProtectedRoutes } from './components/ProtectedRoutes.jsx'
@@ -37,6 +38,7 @@ function App() {
           </ProtectedRoutes>
         } />
         <Route path="/Your-events" element={<YourEvents user={user}/>} />
+        <Route path="/user/:id" element={<UserProfile />} />
       </Routes>
     </BrowserRouter>
 

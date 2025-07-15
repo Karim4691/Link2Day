@@ -16,8 +16,14 @@ function Header( { user } ) {
   const profile = useRef(null)
 
   const handleProfile = () => {setSelectProfile(!selectProfile)}
-
   const handleYourEvents = () => {navigate('/Your-events')}
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => navigate('/'))
+      .catch((error) => console.log(error))
+  }
+  const handleViewProfile = () => {navigate(`/user/${user.uid}`)}
+
 
   //Handle a user click outside of the profile dropdown
   useEffect(() => {
@@ -27,12 +33,6 @@ function Header( { user } ) {
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
-
-  const handleSignOut = () => {
-    signOut(auth)
-      .then(() => navigate('/'))
-      .catch((error) => console.log(error))
-  }
 
   return (
     <div className="relative mt-4 px-10 py-3 flex flex-row items-center border-b border-gray-300">
@@ -79,7 +79,7 @@ function Header( { user } ) {
 
       {selectProfile &&
       <div className="absolute flex flex-col right-4 mt-48 w-48 rounded-md shadow-lg ring-1 ring-black/30" ref={dropdown}>
-        <div className="cursor-pointer text-xs mx-2 my-4 hover:text-gold w-fit">
+        <div className="cursor-pointer text-xs mx-2 my-4 hover:text-gold w-fit" onClick={handleViewProfile}>
           View profile
         </div>
         <div className="cursor-pointer text-xs mx-2 hover:text-gold w-fit" onClick={handleYourEvents}>

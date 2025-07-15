@@ -4,5 +4,11 @@ import tailwindcss from '@tailwindcss/vite'
 
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+    server: {
+        hmr: false,
+        watch: {
+            usePolling: true,
+        },
+    },
+    plugins: [react(), tailwindcss()],
 })
