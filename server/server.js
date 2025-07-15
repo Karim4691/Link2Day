@@ -10,6 +10,6 @@ app.use(express.json())
 app.use("/users", usersRoutes)
 
 app.listen(PORT, (req,res) => {
-    console.log(`server listening on port ${PORT}`)
+    console.log(`server is listening on port ${PORT}`)
 })
 
