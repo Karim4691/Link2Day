@@ -22,7 +22,7 @@ function Header( { user } ) {
       .then(() => navigate('/'))
       .catch((error) => console.log(error))
   }
-  const handleViewProfile = () => {navigate(`/user/${user.uid}`)}
+  const handleViewProfile = () => {navigate(`/users/${user.uid}`)}
 
 
   //Handle a user click outside of the profile dropdown

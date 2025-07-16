@@ -38,7 +38,7 @@ function App() {
           </ProtectedRoutes>
         } />
         <Route path="/Your-events" element={<YourEvents user={user}/>} />
-        <Route path="/user/:id" element={<UserProfile />} />
+        <Route path="/users/:uid" element={<UserProfile />} />
       </Routes>
     </BrowserRouter>
 

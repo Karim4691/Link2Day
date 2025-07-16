@@ -2,11 +2,11 @@ import express from 'express'
 import { db } from '../firebase.js'
 const router = express.Router()
 
-router.get('/:id', async (req, res) => {
-  const { id } = req.params
+router.get('/:uid', async (req, res) => {
+  const { uid } = req.params
 
   try {
-    const userDoc = await db.collection('users').doc(id).get()
+    const userDoc = await db.collection('users').doc(uid).get()
     if (!userDoc.exists) {
       return res.status(404).json({ error: 'User not found' })
     }
@@ -18,3 +18,5 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' })
   }
 })
+
+export default router

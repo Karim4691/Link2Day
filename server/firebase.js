@@ -1,9 +1,12 @@
 import admin from 'firebase-admin'
-import serviceAccountKey from './serviceAccountKey.json' 
+import { initializeApp, applicationDefault } from 'firebase-admin/app'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 if (!admin.apps.length) { //check if app is initialized
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccountKey),
+  initializeApp({
+    credential: applicationDefault(),
   })
 }
 
