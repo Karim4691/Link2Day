@@ -1,22 +1,27 @@
 import express from 'express'
-import { db } from '../firebase.js'
+import { getAuth } from 'firebase-admin/auth'
+import { initializeApp, applicationDefault } from 'firebase-admin/app'
+import dotenv from 'dotenv'
+
+dotenv.config()
+
+initializeApp({
+  credential: applicationDefault(),
+  projectID: process.env.FIREBASE_PROJECT_ID,
+})
+
 const router = express.Router()
 
-router.get('/:uid', async (req, res) => {
+router.get('/:uid', (req, res) => {
   const { uid } = req.params
 
-  try {
-    const userDoc = await db.collection('users').doc(uid).get()
-    if (!userDoc.exists) {
-      return res.status(404).json({ error: 'User not found' })
-    }
-
-    const data = userDoc.data()
-    res.json({ name: data.displayName, bio: data.bio })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Internal server error' })
-  }
+  getAuth().getUser(uid).then((UserRecord) => {
+    console.log('Successfully fetched user data')
+    res.status(200).json({email: UserRecord.email})
+  }).catch((error) => {
+    console.log('Error fetching user data:', error)
+    res.status(404).json( {error: 'User not found'})
+  })
 })
 
 export default router
