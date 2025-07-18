@@ -37,7 +37,7 @@ function Header( { user } ) {
   return (
     <div className="relative mt-4 px-10 py-3 flex flex-row items-center border-b border-gray-300">
       <div className="font-sacramento text-gold text-5xl cursor-pointer mr-5">
-        Link2Days
+        Link2Day
       </div>
 
       <div className="relative flex flex-row items-center justify-center w-2/5 mx-5">

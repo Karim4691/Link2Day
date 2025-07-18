@@ -12,6 +12,20 @@ initializeApp({
 
 const router = express.Router()
 
+router.get('/protected-resource', (req, res) => {
+  const idToken = req.headers.authorization?.split('Bearer ')[1]
+
+  getAuth().verifyIdToken(idToken)
+  .then(() => {
+    res.status(200).end()
+    console.log("Token successfully validated")
+  })
+  .catch((error) => {
+    res.status(401).end()
+    console.log(error)
+  })
+})
+
 router.get('/:uid', (req, res) => {
   const { uid } = req.params
 

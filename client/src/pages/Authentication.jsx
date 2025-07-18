@@ -3,7 +3,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { auth } from '../firebase.js'
 import { Navigate } from 'react-router-dom'
 
-function Home({ user }) {
+function Authentication({ user }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
@@ -24,12 +24,27 @@ function Home({ user }) {
 
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-      const user = userCredential.user
-      console.log(user)
-    }).catch((error) => {
-      const [errorCode, errorMessage] = [error.code, error.message]
-      console.log(errorCode, errorMessage)
+      console.log(userCredential.user)
+      return userCredential.user.getIdToken()
     })
+      .then((idToken) => {
+        return fetch('/api/users/protected-resource', {
+          headers: {
+            Authorization: `Bearer ${idToken}`
+          }
+        })
+      })
+      .then((res) => {
+        if (!res.ok) {
+          const error = new Error("Unable to validate identification token")
+          error.code = res.status
+        }
+      })
+      .catch((error) => {
+        const [errorCode, errorMessage] = [error.code, error.message]
+        console.log(errorCode, errorMessage)
+        alert(errorMessage)
+      })
   }
 
   const handleEmailChange = (event) => setEmail(event.target.value)
@@ -85,4 +100,4 @@ function Home({ user }) {
   )
 }
 
-export default Home
+export default Authentication

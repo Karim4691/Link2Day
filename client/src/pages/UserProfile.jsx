@@ -5,7 +5,6 @@ function Profile() {
   const { uid } = useParams()
   const [user, setUser] = useState(null)
   const [error, setError] = useState(null)
-  
 
   useEffect(() => {
     fetch(`/api/users/${uid}`)
@@ -21,11 +20,9 @@ function Profile() {
   if (!user) return <p>Loading...</p>
 
   const handleUpload = () => {
-    
   }
 
   return (
-    
     <div>
       <h2>{user.displayName}</h2>
       <p>{user.bio}</p>
