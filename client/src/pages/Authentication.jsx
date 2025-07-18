@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase.js'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 function Authentication({ user }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const navigate = useNavigate()
 
   const [isSignUpActive, setIsSignUpActive] = useState(true)
   const handleSignUpChange = () => {
@@ -38,12 +39,16 @@ function Authentication({ user }) {
         if (!res.ok) {
           const error = new Error("Unable to validate identification token")
           error.code = res.status
+          throw error
         }
       })
       .catch((error) => {
         const [errorCode, errorMessage] = [error.code, error.message]
         console.log(errorCode, errorMessage)
-        alert(errorMessage)
+        if (errorCode === 401) auth.signOut().then(() => {
+          navigate('/')
+          alert(errorMessage)
+        })
       })
   }
 
