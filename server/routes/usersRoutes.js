@@ -12,7 +12,7 @@ initializeApp({
 
 const router = express.Router()
 
-router.get('/protected-resource', (req, res) => {
+router.get('/create', (req, res) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1]
 
   getAuth().verifyIdToken(idToken)

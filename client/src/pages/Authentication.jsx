@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase.js'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
+import PlacesAutocomplete, {geocodeByAddress, getLatLng} from 'react-places-autocomplete'
 
 function Authentication({ user }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const navigate = useNavigate()
+  const [name, setName] = useState("")
 
   const [isSignUpActive, setIsSignUpActive] = useState(true)
   const handleSignUpChange = () => {
@@ -23,37 +24,22 @@ function Authentication({ user }) {
     })
   }
 
+  
+
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
       console.log(userCredential.user)
-      return userCredential.user.getIdToken()
     })
-      .then((idToken) => {
-        return fetch('/api/users/protected-resource', {
-          headers: {
-            Authorization: `Bearer ${idToken}`
-          }
-        })
-      })
-      .then((res) => {
-        if (!res.ok) {
-          const error = new Error("Unable to validate identification token")
-          error.code = res.status
-          throw error
-        }
-      })
       .catch((error) => {
         const [errorCode, errorMessage] = [error.code, error.message]
         console.log(errorCode, errorMessage)
-        if (errorCode === 401) auth.signOut().then(() => {
-          navigate('/')
-          alert(errorMessage)
-        })
       })
   }
 
   const handleEmailChange = (event) => setEmail(event.target.value)
   const handlePasswordChange = (event) => setPassword(event.target.value)
+  const handleNameChange = () => setName(event.target.value)
+
 
   if(user) {
     return <Navigate to='/Home' />
@@ -77,14 +63,28 @@ function Authentication({ user }) {
 
         <fieldset className='flex flex-col mt-4 w-2/6'>
           <ul className='flex flex-col'>
+            {
+              isSignUpActive &&
+                  <li className='flex flex-col mb-6'>
+                    <label className='text-sm'>Your name</label>
+                    <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' type='text' onChange={handleNameChange}/>
+                  </li>
+            }
             <li className='flex flex-col'>
               <label className='text-sm' htmlFor='email'>Email address</label>
-              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-gold text-sm hover:border-gray-500' type='text' onChange={handleEmailChange}/>
+              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' type='text' onChange={handleEmailChange}/>
             </li>
             <li className='flex flex-col mt-6'>
               <label className='text-sm' htmlFor='password'>Password</label>
-              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-gold text-sm hover:border-gray-500' type='password' onChange={handlePasswordChange}/>
+              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' type='password' onChange={handlePasswordChange}/>
             </li>
+            {
+              isSignUpActive &&
+                  <li className='flex flex-col mt-6'>
+                    <label className='text-sm'>Location</label>
+                    <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' type='text' onChange={handleNameChange}/>
+                  </li>
+            }
           </ul>
 
           {isSignUpActive && <button className='bg-black text-white/90 rounded-md my-6 py-2 text-sm cursor-pointer hover:text-white/100' type='button' onClick={handleSignUp}>Sign up</button>}
