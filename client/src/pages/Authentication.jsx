@@ -8,8 +8,15 @@ function Authentication({ user }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
-
+  const [location, setLocation] = useState("")
+  const [coordinates, setCoordinates] = useState({ lat: null, lng: null })
   const [isSignUpActive, setIsSignUpActive] = useState(true)
+
+  // Redirect to Home if user is already authenticated
+  if(user) {
+    return <Navigate to='/Home' />
+  }
+
   const handleSignUpChange = () => {
     setIsSignUpActive(!isSignUpActive)
   }
@@ -24,8 +31,6 @@ function Authentication({ user }) {
     })
   }
 
-  
-
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
       console.log(userCredential.user)
@@ -38,12 +43,34 @@ function Authentication({ user }) {
 
   const handleEmailChange = (event) => setEmail(event.target.value)
   const handlePasswordChange = (event) => setPassword(event.target.value)
-  const handleNameChange = () => setName(event.target.value)
+  const handleNameChange = (event) => setName(event.target.value)
 
 
-  if(user) {
-    return <Navigate to='/Home' />
+  const handleSelect = async (selected) => {
+    try {
+      console.log(location)
+      const addr_array = location.split(',')
+      if (addr_array.length === 1) {
+        const error = new Error("Must specify city or state")
+        error.code = 400
+        throw error
+      }
+      const results = await geocodeByAddress(selected)
+      const lat_lon = await getLatLng(results[0])
+      console.log('Coordinates: ', lat_lon)
+      setCoordinates(lat_lon)
+    }
+    catch (error) {
+      setLocation('')
+      console.log(error)
+    }
   }
+
+  const onError = (status, clearSuggestions) => {
+    console.log('Google Maps API returned error with status: ', status)
+    clearSuggestions()
+  }
+
   return (
     <section className='absolute h-full w-full flex flex-col'>
       <h1 className='flex-1/12 font-sacramento bg-gold text-center text-4xl py-3 text-white cursor-default'>
@@ -82,7 +109,27 @@ function Authentication({ user }) {
               isSignUpActive &&
                   <li className='flex flex-col mt-6'>
                     <label className='text-sm'>Location</label>
-                    <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' type='text' onChange={handleNameChange}/>
+                    <PlacesAutocomplete value={location} onChange={setLocation} onSelect={handleSelect} onError={onError} >
+                      {({ getInputProps, suggestions, getSuggestionItemProps }) => (
+                        <div className='relative'>
+                          <input {...getInputProps({
+                            className: 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500 w-full'
+                          })} />
+
+                          <div className='bg-gray-100 rounded-md my-1 z-50 absolute w-full overflow-y-auto'>
+                            {suggestions.map((suggestion, index) => {
+                              const className = "cursor-pointer text-sm px-2 py-1 hover:text-gold"
+                              return (
+                                <div {...getSuggestionItemProps(suggestion, { className }) } key={index} onMouseEnter={() => setLocation(suggestion.description)}>
+                                  {suggestion.description}
+                                </div>
+                              )
+                            }) }
+                          </div>
+                        </div>
+                      )
+                      }
+                    </PlacesAutocomplete>
                   </li>
             }
           </ul>
