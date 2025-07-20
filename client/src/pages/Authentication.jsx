@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase.js'
 import { Navigate } from 'react-router-dom'
-import PlacesAutocomplete, {geocodeByAddress, getLatLng} from 'react-places-autocomplete'
+import Autocomplete from '../components/Autocomplete.jsx'
 
 function Authentication({ user }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
-  const [location, setLocation] = useState("")
+  const [selectedLocation, setSelectedLocation] = useState("") //Used to store the selected address from PlacesAutocomplete
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null })
   const [isSignUpActive, setIsSignUpActive] = useState(true)
 
@@ -22,9 +22,43 @@ function Authentication({ user }) {
   }
 
   const handleSignUp = () => {
+    if (name === '') {
+      const error = new Error("Name is required")
+      error.code = 400
+      throw error
+    }
+    if (coordinates.lat === null) {
+      const error = new Error("Invalid location")
+      error.code = 400
+      throw error
+    }
     createUserWithEmailAndPassword(auth,email,password).then((userCredential) => {
       const user = userCredential.user
       console.log(user)
+      return user.getIdToken()
+      .then((idToken) => {
+        return fetch('/api/users/create', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${idToken}`, 
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            uid: user.uid,
+            displayName: name,
+            email: email,
+            location: selectedLocation,
+            coordinates: coordinates
+          })
+        })
+      })
+      .then((res) => {
+        if (!res.ok) {
+          const error = new Error("Unable to validate identification token")
+          error.code = res.status
+          throw error
+        }
+      })
     }).catch((error) => {
       const [errorCode, errorMessage] = [error.code, error.message]
       console.log(errorCode, errorMessage)
@@ -44,32 +78,6 @@ function Authentication({ user }) {
   const handleEmailChange = (event) => setEmail(event.target.value)
   const handlePasswordChange = (event) => setPassword(event.target.value)
   const handleNameChange = (event) => setName(event.target.value)
-
-
-  const handleSelect = async (selected) => {
-    try {
-      console.log(location)
-      const addr_array = location.split(',')
-      if (addr_array.length === 1) {
-        const error = new Error("Must specify city or state")
-        error.code = 400
-        throw error
-      }
-      const results = await geocodeByAddress(selected)
-      const lat_lon = await getLatLng(results[0])
-      console.log('Coordinates: ', lat_lon)
-      setCoordinates(lat_lon)
-    }
-    catch (error) {
-      setLocation('')
-      console.log(error)
-    }
-  }
-
-  const onError = (status, clearSuggestions) => {
-    console.log('Google Maps API returned error with status: ', status)
-    clearSuggestions()
-  }
 
   return (
     <section className='absolute h-full w-full flex flex-col'>
@@ -109,27 +117,7 @@ function Authentication({ user }) {
               isSignUpActive &&
                   <li className='flex flex-col mt-6'>
                     <label className='text-sm'>Location</label>
-                    <PlacesAutocomplete value={location} onChange={setLocation} onSelect={handleSelect} onError={onError} >
-                      {({ getInputProps, suggestions, getSuggestionItemProps }) => (
-                        <div className='relative'>
-                          <input {...getInputProps({
-                            className: 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500 w-full'
-                          })} />
-
-                          <div className='bg-gray-100 rounded-md my-1 z-50 absolute w-full overflow-y-auto'>
-                            {suggestions.map((suggestion, index) => {
-                              const className = "cursor-pointer text-sm px-2 py-1 hover:text-gold"
-                              return (
-                                <div {...getSuggestionItemProps(suggestion, { className }) } key={index} onMouseEnter={() => setLocation(suggestion.description)}>
-                                  {suggestion.description}
-                                </div>
-                              )
-                            }) }
-                          </div>
-                        </div>
-                      )
-                      }
-                    </PlacesAutocomplete>
+                    <Autocomplete setSelectedLocation={setSelectedLocation} setCoordinates={setCoordinates}/>
                   </li>
             }
           </ul>

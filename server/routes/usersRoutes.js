@@ -12,13 +12,14 @@ initializeApp({
 
 const router = express.Router()
 
-router.get('/create', (req, res) => {
+router.post('/create', (req, res) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1]
 
   getAuth().verifyIdToken(idToken)
   .then(() => {
     res.status(200).end()
     console.log("Token successfully validated")
+    console.log(req.body)
   })
   .catch((error) => {
     res.status(401).end()
