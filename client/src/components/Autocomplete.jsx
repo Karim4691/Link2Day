@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
+import ErrorHandler from '../helper_functions/ErrorHandler.js'
 
 function Autocomplete( { setSelectedLocation, setCoordinates } ) {
   const [location, setLocation] = useState('') //Used to store the user's input
@@ -14,7 +15,7 @@ function Autocomplete( { setSelectedLocation, setCoordinates } ) {
       const addr_array = location.split(',')
       if (addr_array.length === 1) {
         const error = new Error("Must specify city or state")
-        error.code = 400
+        error.code = "auth/missing-city-or-state"
         throw error
       }
       const results = await geocodeByAddress(selected)
@@ -28,6 +29,7 @@ function Autocomplete( { setSelectedLocation, setCoordinates } ) {
       setLocation('')
       setSelectedLocation('')
       setCoordinates({ lat: null, lng: null })
+      ErrorHandler(error)
       console.log(error)
     }
   }

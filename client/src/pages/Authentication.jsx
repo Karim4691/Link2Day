@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { auth } from '../firebase.js'
 import { Navigate } from 'react-router-dom'
 import Autocomplete from '../components/Autocomplete.jsx'
+import ErrorHandler from '../helper_functions/ErrorHandler.js'
 
 function Authentication({ user }) {
   const [email, setEmail] = useState("")
@@ -18,51 +19,56 @@ function Authentication({ user }) {
   }
 
   const handleSignUpChange = () => {
+    setName('')
+    setEmail('')
+    setPassword('')
+    setSelectedLocation('')
+    setCoordinates({ lat: null, lng: null })
     setIsSignUpActive(!isSignUpActive)
   }
 
-  const handleSignUp = () => {
-    if (name === '') {
-      const error = new Error("Name is required")
-      error.code = 400
-      throw error
-    }
-    if (coordinates.lat === null) {
-      const error = new Error("Invalid location")
-      error.code = 400
-      throw error
-    }
-    createUserWithEmailAndPassword(auth,email,password).then((userCredential) => {
+  const handleSignUp = async () => {
+    try {
+      if (name === '') {
+        const error = new Error("Name is required")
+        error.code = "auth/invalid-name"
+        throw error
+      }
+      if (coordinates.lat === null) {
+        const error = new Error("Invalid location")
+        error.code = "auth/invalid-location"
+        throw error
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(auth,email,password)
       const user = userCredential.user
       console.log(user)
-      return user.getIdToken()
-      .then((idToken) => {
-        return fetch('/api/users/create', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${idToken}`, 
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            uid: user.uid,
-            displayName: name,
-            email: email,
-            location: selectedLocation,
-            coordinates: coordinates
-          })
+      const idToken = await user.getIdToken()
+
+      const res = await fetch('/api/users/create', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          uid: user.uid,
+          displayName: name,
+          email: email,
+          location: selectedLocation,
+          coordinates: coordinates
         })
       })
-      .then((res) => {
-        if (!res.ok) {
-          const error = new Error("Unable to validate identification token")
-          error.code = res.status
-          throw error
-        }
-      })
-    }).catch((error) => {
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw error
+      }
+    } catch (error) {
       const [errorCode, errorMessage] = [error.code, error.message]
       console.log(errorCode, errorMessage)
-    })
+      ErrorHandler(error)
+    }
   }
 
   const handleSignIn = () => {
@@ -72,6 +78,7 @@ function Authentication({ user }) {
       .catch((error) => {
         const [errorCode, errorMessage] = [error.code, error.message]
         console.log(errorCode, errorMessage)
+        ErrorHandler(error)
       })
   }
 
@@ -102,24 +109,24 @@ function Authentication({ user }) {
               isSignUpActive &&
                   <li className='flex flex-col mb-6'>
                     <label className='text-sm'>Your name</label>
-                    <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' type='text' onChange={handleNameChange}/>
+                    <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' value={name} type='text' onChange={handleNameChange}/>
                   </li>
             }
-            <li className='flex flex-col'>
-              <label className='text-sm' htmlFor='email'>Email address</label>
-              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' type='text' onChange={handleEmailChange}/>
-            </li>
-            <li className='flex flex-col mt-6'>
-              <label className='text-sm' htmlFor='password'>Password</label>
-              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' type='password' onChange={handlePasswordChange}/>
-            </li>
             {
               isSignUpActive &&
-                  <li className='flex flex-col mt-6'>
+                  <li className='flex flex-col mb-6'>
                     <label className='text-sm'>Location</label>
                     <Autocomplete setSelectedLocation={setSelectedLocation} setCoordinates={setCoordinates}/>
                   </li>
             }
+            <li className='flex flex-col'>
+              <label className='text-sm' htmlFor='email'>Email address</label>
+              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' value={email} type='text' onChange={handleEmailChange}/>
+            </li>
+            <li className='flex flex-col mt-6'>
+              <label className='text-sm' htmlFor='password'>Password</label>
+              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500' value={password} type='password' onChange={handlePasswordChange}/>
+            </li>
           </ul>
 
           {isSignUpActive && <button className='bg-black text-white/90 rounded-md my-6 py-2 text-sm cursor-pointer hover:text-white/100' type='button' onClick={handleSignUp}>Sign up</button>}

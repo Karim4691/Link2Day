@@ -8,6 +8,7 @@ import { onAuthStateChanged } from "firebase/auth"
 import { useEffect, useState } from "react"
 import { ProtectedRoutes } from './components/ProtectedRoutes.jsx'
 import { auth } from "./firebase.js"
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -29,6 +30,7 @@ function App() {
   }
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<Authentication user={user}/>} />
         <Route path="/Home" element={<Home user={user} />} />

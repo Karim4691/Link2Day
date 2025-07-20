@@ -2,6 +2,7 @@ import express from 'express'
 import { getAuth } from 'firebase-admin/auth'
 import { initializeApp, applicationDefault } from 'firebase-admin/app'
 import dotenv from 'dotenv'
+import validateTokenID from '../middlewares/validateTokenID.js'
 
 dotenv.config()
 
@@ -12,19 +13,9 @@ initializeApp({
 
 const router = express.Router()
 
-router.post('/create', (req, res) => {
-  const idToken = req.headers.authorization?.split('Bearer ')[1]
-
-  getAuth().verifyIdToken(idToken)
-  .then(() => {
-    res.status(200).end()
-    console.log("Token successfully validated")
-    console.log(req.body)
-  })
-  .catch((error) => {
-    res.status(401).end()
-    console.log(error)
-  })
+router.post('/create', validateTokenID, (req, res) => {
+  const user = req.user
+  res.status(200).json({ message: "User created", uid: user.uid })
 })
 
 router.get('/:uid', (req, res) => {
