@@ -1,12 +1,12 @@
-import admin from "firebase-admin"
+import { getAuth } from 'firebase-admin/auth'
 
+// Middleware to validate Firebase ID token
 const validateTokenID = (req, res, next) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1]
   
     getAuth().verifyIdToken(idToken)
     .then((decodedToken) => {
       console.log("Token successfully validated")
-      console.log(req.body)
 
       req.user = decodedToken // Store decoded token for next
       next()
@@ -14,7 +14,7 @@ const validateTokenID = (req, res, next) => {
     .catch((error) => {
       res.status(401).json({
         message : error.message, 
-        code: error.code
+        code: "auth/invalid-id-token"
       })
       console.log(error)
     })

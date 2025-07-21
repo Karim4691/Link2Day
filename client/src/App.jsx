@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 import { ProtectedRoutes } from './components/ProtectedRoutes.jsx'
 import { auth } from "./firebase.js"
 import { Toaster } from 'react-hot-toast'
+import Loading from "./components/Loading.jsx"
 
 function App() {
   const [user, setUser] = useState(null)
@@ -26,7 +27,7 @@ function App() {
   }, [])
 
   if (isFetching) {
-    return <div>Loading...</div>
+    return <Loading />
   }
   return (
     <BrowserRouter>

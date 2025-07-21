@@ -3,7 +3,8 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { auth } from '../firebase.js'
 import { Navigate } from 'react-router-dom'
 import Autocomplete from '../components/Autocomplete.jsx'
-import ErrorHandler from '../helper_functions/ErrorHandler.js'
+import errorHandler from '../helper_functions/errorHandler.js'
+import Loading from '../components/Loading.jsx'
 
 function Authentication({ user }) {
   const [email, setEmail] = useState("")
@@ -12,6 +13,7 @@ function Authentication({ user }) {
   const [selectedLocation, setSelectedLocation] = useState("") //Used to store the selected address from PlacesAutocomplete
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null })
   const [isSignUpActive, setIsSignUpActive] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Redirect to Home if user is already authenticated
   if(user) {
@@ -28,6 +30,7 @@ function Authentication({ user }) {
   }
 
   const handleSignUp = async () => {
+    setIsLoading(true)
     try {
       if (name === '') {
         const error = new Error("Name is required")
@@ -44,6 +47,7 @@ function Authentication({ user }) {
       const user = userCredential.user
       console.log(user)
       const idToken = await user.getIdToken()
+
 
       const res = await fetch('/api/users/create', {
         method: 'POST',
@@ -67,25 +71,32 @@ function Authentication({ user }) {
     } catch (error) {
       const [errorCode, errorMessage] = [error.code, error.message]
       console.log(errorCode, errorMessage)
-      ErrorHandler(error)
+      errorHandler(error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleSignIn = () => {
+    setIsLoading(true)
     signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
       console.log(userCredential.user)
     })
       .catch((error) => {
         const [errorCode, errorMessage] = [error.code, error.message]
         console.log(errorCode, errorMessage)
-        ErrorHandler(error)
+        errorHandler(error)
       })
+      .finally(() => setIsLoading(false))
   }
 
   const handleEmailChange = (event) => setEmail(event.target.value)
   const handlePasswordChange = (event) => setPassword(event.target.value)
   const handleNameChange = (event) => setName(event.target.value)
 
+  if (isLoading) {
+    return <Loading />
+  }
   return (
     <section className='absolute h-full w-full flex flex-col'>
       <h1 className='flex-1/12 font-sacramento bg-gold text-center text-4xl py-3 text-white cursor-default'>

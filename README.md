@@ -1,3 +1,3 @@
 TODO
 Make app responsive
-Fix focus border
+Add forgot password and email verification feature 
