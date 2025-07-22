@@ -69,6 +69,9 @@ const ErrorHandler = (error) => {
     case "auth/invalid-name":
       toast.error("Name is required.")
       break
+    case "user/not-found":
+      toast.error("The user cannot be found.")
+      break
 
     default:
       toast.error("Something went wrong. Please try again.")

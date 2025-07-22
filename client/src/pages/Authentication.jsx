@@ -3,8 +3,8 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { auth } from '../firebase.js'
 import { Navigate } from 'react-router-dom'
 import Autocomplete from '../components/Autocomplete.jsx'
-import errorHandler from '../helper_functions/errorHandler.js'
-import Loading from '../components/Loading.jsx'
+import errorHandler from '../utils/errorHandler.js'
+import SpinLoader from '../components/SpinLoader.jsx'
 
 function Authentication({ user }) {
   const [email, setEmail] = useState("")
@@ -13,7 +13,7 @@ function Authentication({ user }) {
   const [selectedLocation, setSelectedLocation] = useState("") //Used to store the selected address from PlacesAutocomplete
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null })
   const [isSignUpActive, setIsSignUpActive] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Redirect to Home if user is already authenticated
   if(user) {
@@ -42,6 +42,7 @@ function Authentication({ user }) {
         error.code = "auth/invalid-location"
         throw error
       }
+      const timezoneData = await fetch(`https://maps.googleapis.com/maps/api/timezone/json?location=${coordinates.lat},${coordinates.lng}&timestamp=${Math.floor(Date.now() / 1000)}&key=AIzaSyDSXyTmqJ-QhRHZotjpC2ECxu9Jxthgn6M`)
 
       const userCredential = await createUserWithEmailAndPassword(auth,email,password)
       const user = userCredential.user
@@ -60,7 +61,9 @@ function Authentication({ user }) {
           displayName: name,
           email: email,
           location: selectedLocation,
-          coordinates: coordinates
+          coordinates: coordinates,
+          timeZoneID: timezoneData.timeZoneId,
+          timeZoneName: timezoneData.timeZoneName,
         })
       })
 
@@ -94,9 +97,6 @@ function Authentication({ user }) {
   const handlePasswordChange = (event) => setPassword(event.target.value)
   const handleNameChange = (event) => setName(event.target.value)
 
-  if (isLoading) {
-    return <Loading />
-  }
   return (
     <section className='absolute h-full w-full flex flex-col'>
       <h1 className='flex-1/12 font-sacramento bg-gold text-center text-4xl py-3 text-white cursor-default'>
@@ -140,12 +140,25 @@ function Authentication({ user }) {
             </li>
           </ul>
 
-          {isSignUpActive && <button className='bg-black text-white/90 rounded-md my-6 py-2 text-sm cursor-pointer hover:text-white/100' type='button' onClick={handleSignUp}>Sign up</button>}
-          {!isSignUpActive && <button className='bg-black text-white/90 rounded-md my-6 py-2 text-sm cursor-pointer hover:text-white/100' type='button' onClick={handleSignIn}>Sign in</button>}
+          {isSignUpActive && <button className='relative bg-black text-white/90 rounded-md my-6 py-2 text-sm cursor-pointer hover:text-white/100' type='button' onClick={handleSignUp}>
+            { isLoading &&
+            <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
+              <SpinLoader />
+            </div>
+            }
+            Sign up</button>}
+          {!isSignUpActive && <button className='relative bg-black text-white/90 rounded-md my-6 py-2 text-sm cursor-pointer hover:text-white/100' type='button' onClick={handleSignIn}>
+            { isLoading &&
+            <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
+              <SpinLoader />
+            </div>
+            }
+            Sign in</button>}
         </fieldset>
         {isSignUpActive &&
         <div className='flex flex-row items-center justify-center w-2/6'>
-          <div className='text-sm text-black/80 pr-3'> Already have an account?</div>
+          <div className='text-sm text-black/80 pr-3'>
+            Already have an account?</div>
           <a className='text-gold underline text-sm my-3 cursor-pointer' onClick={handleSignUpChange}>Log in</a>
         </div>}
         {!isSignUpActive &&

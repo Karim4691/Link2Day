@@ -24,13 +24,15 @@ router.post('/create', validateTokenID, async (req, res) => {
       location: req.body.location,
       coordinates: req.body.coordinates, 
       bio : "", 
-      photoURL : null,
+      timeZoneID: req.body.timeZoneID,
+      timeZoneName: req.body.timeZoneName,
+      photoURL : "/images/profile/l.svg",
       eventsCreated: [],
       eventsJoined: [], 
       messagedUsers: [],
     })
     console.log('user created in MongoDB')
-    res.status(200).end()
+    res.status(201).end()
   } catch(error) {
       res.status(500).json({
         message : "Failed to create user", 
@@ -44,13 +46,20 @@ router.post('/create', validateTokenID, async (req, res) => {
 router.get('/:uid', (req, res) => {
   const { uid } = req.params
 
-  getAuth().getUser(uid).then((UserRecord) => {
-    console.log('Successfully fetched user data')
-    res.status(200).json({email: UserRecord.email})
+  users.findOne({ _id: uid }).then((user) => {
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        code: "user/not-found"
+      })
+    }
+  })
   }).catch((error) => {
     console.log('Error fetching user data:', error)
-    res.status(404).json( {error: 'User not found'})
+    res.status(500).json( {
+      message: "Failed to fetch user data",
+      code: "auth/internal-error"
+    })
   })
-})
 
 export default router

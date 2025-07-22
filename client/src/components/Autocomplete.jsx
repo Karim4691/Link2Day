@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
-import ErrorHandler from '../helper_functions/errorHandler.js'
+import ErrorHandler from '../utils/errorHandler.js'
 
 function Autocomplete( { setSelectedLocation, setCoordinates } ) {
   const [location, setLocation] = useState('') //Used to store the user's input

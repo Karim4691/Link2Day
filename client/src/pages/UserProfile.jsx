@@ -1,28 +1,36 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import errorHandler from '../utils/errorHandler'
+import Loading from '../components/Loading'
 
-function Profile() {
+function Profile( { user }) {
   const { uid } = useParams()
   const [userData, setUserData] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
+    setIsLoading(true)
     fetch(`/api/users/${uid}`)
       .then(res => {
         return res.json()
       })
       .then(data => {
         if (data.code !== undefined) throw data // Handle error from API
+        setUserData(data)
       })
       .catch(error => {
-        
+        errorHandler(error)
+        console.log(error)
       })
-  }, [])
-
-  if (error) return <p>Error: {error}</p>
-  if (!user) return <p>Loading...</p>
+      .finally( () => {
+        setIsLoading(false)
+      })
+  }, [uid])
 
   const handleUpload = () => {
   }
+
+  if (isLoading) return <Loading />
 
   return (
     <div>
