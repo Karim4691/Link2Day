@@ -36,7 +36,7 @@ function Header( { user } ) {
 
   return (
     <div className="relative mt-4 px-10 py-3 flex flex-row items-center border-b border-gray-300 w-full h-full">
-      <div className="font-sacramento text-gold text-5xl cursor-pointer mr-5">
+      <div className="font-sacramento text-gold text-5xl cursor-pointer mr-5" onClick={() => navigate('/Home')}>
         Link2Day
       </div>
 

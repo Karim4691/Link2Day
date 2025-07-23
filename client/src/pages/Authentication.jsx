@@ -140,14 +140,14 @@ function Authentication({ user }) {
             </li>
           </ul>
 
-          {isSignUpActive && <button className='relative bg-black text-white/90 rounded-md my-6 py-2 text-sm cursor-pointer hover:text-white/100' type='button' onClick={handleSignUp}>
+          {isSignUpActive && <button className='relative bg-black text-white rounded-md my-6 py-2 text-sm cursor-pointer hover:opacity-80' type='button' onClick={handleSignUp}>
             { isLoading &&
             <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
               <SpinLoader />
             </div>
             }
             Sign up</button>}
-          {!isSignUpActive && <button className='relative bg-black text-white/90 rounded-md my-6 py-2 text-sm cursor-pointer hover:text-white/100' type='button' onClick={handleSignIn}>
+          {!isSignUpActive && <button className='relative bg-black text-white rounded-md my-6 py-2 text-sm cursor-pointer hover:opacity-80' type='button' onClick={handleSignIn}>
             { isLoading &&
             <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
               <SpinLoader />
