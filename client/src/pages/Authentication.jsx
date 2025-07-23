@@ -13,7 +13,7 @@ function Authentication({ user }) {
   const [selectedLocation, setSelectedLocation] = useState("") //Used to store the selected address from PlacesAutocomplete
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null })
   const [isSignUpActive, setIsSignUpActive] = useState(true)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Redirect to Home if user is already authenticated
   if(user) {

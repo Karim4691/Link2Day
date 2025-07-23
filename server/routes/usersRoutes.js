@@ -53,13 +53,22 @@ router.get('/:uid', (req, res) => {
         code: "user/not-found"
       })
     }
+    res.status(200).json({
+      name: user.name,
+      location: user.location,
+      bio: user.bio,
+      photoURL: user.photoURL,
+      eventsCreated: user.eventsCreated.length,
+      eventsJoined: user.eventsJoined.length,
+    })
   })
-  }).catch((error) => {
+  .catch((error) => {
     console.log('Error fetching user data:', error)
     res.status(500).json( {
       message: "Failed to fetch user data",
       code: "auth/internal-error"
     })
   })
+})
 
 export default router
