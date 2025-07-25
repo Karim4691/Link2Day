@@ -1,31 +1,31 @@
 import express from 'express'
-import { getAuth } from 'firebase-admin/auth'
-import { initializeApp, applicationDefault } from 'firebase-admin/app'
-import dotenv from 'dotenv'
 import validateTokenID from '../middlewares/validateTokenID.js'
 import db from '../mongodb.js'
+import auth from '../firebase.js'
 
-dotenv.config()
-
-initializeApp({
-  credential: applicationDefault(),
-  projectID: process.env.FIREBASE_PROJECT_ID,
-})
 
 const router = express.Router()
 const users = db.collection('users')
 
-router.post('/create', validateTokenID, async (req, res) => {
+router.post('/create', async (req, res) => {
+  const { displayName, email, password, location, coordinates } = req.body
   try {
+    const { timeZoneId, timeZoneName } = await fetch(`https://maps.googleapis.com/maps/api/timezone/json?location=${coordinates.lat},${coordinates.lng}&timestamp=${Math.floor(Date.now() / 1000)}&key=AIzaSyDSXyTmqJ-QhRHZotjpC2ECxu9Jxthgn6M`)
+
+    const user = await auth.createUser({
+      email: email,
+      password: password,
+      })
+  
     await users.insertOne({
-      _id: req.body.uid,
-      name: req.body.displayName,
-      email: req.body.email,
-      location: req.body.location,
-      coordinates: req.body.coordinates, 
-      bio : "", 
-      timeZoneID: req.body.timeZoneID,
-      timeZoneName: req.body.timeZoneName,
+      _id: user.uid,
+      name: displayName,
+      email: email,
+      location: location,
+      coordinates: coordinates, 
+      bio : "Hey there! I'm new to Link2Day. Feel free to reach out if you want to connect.", 
+      timeZoneID: timeZoneId,
+      timeZoneName: timeZoneName,
       photoURL : "/images/profile/l.svg",
       eventsCreated: [],
       eventsJoined: [], 
@@ -34,6 +34,7 @@ router.post('/create', validateTokenID, async (req, res) => {
     console.log('user created in MongoDB')
     res.status(201).end()
   } catch(error) {
+      await auth.deleteUser(req.body.uid) //delete user from Firebase if creation in MongoDB fails
       res.status(500).json({
         message : "Failed to create user", 
         code : "auth/operation-not-allowed"

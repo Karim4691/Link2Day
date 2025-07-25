@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase.js'
 import { Navigate } from 'react-router-dom'
 import Autocomplete from '../components/Autocomplete.jsx'
 import errorHandler from '../utils/errorHandler.js'
 import SpinLoader from '../components/SpinLoader.jsx'
+import { verifyName, verifyEmail, verifyLocation, verifyPassword } from '../utils/validators.js'
 
 function Authentication({ user }) {
   const [email, setEmail] = useState("")
@@ -30,51 +31,39 @@ function Authentication({ user }) {
   }
 
   const handleSignUp = async () => {
+    var error = new Error("Invalid input")
     setIsLoading(true)
     try {
-      if (name === '') {
-        const error = new Error("Name is required")
-        error.code = "auth/invalid-name"
-        throw error
-      }
-      if (coordinates.lat === null) {
-        const error = new Error("Invalid location")
-        error.code = "auth/invalid-location"
-        throw error
-      }
-      const timezoneData = await fetch(`https://maps.googleapis.com/maps/api/timezone/json?location=${coordinates.lat},${coordinates.lng}&timestamp=${Math.floor(Date.now() / 1000)}&key=AIzaSyDSXyTmqJ-QhRHZotjpC2ECxu9Jxthgn6M`)
+      if (!verifyName(name)) error.code = "auth/invalid-name"
+      else if (!verifyEmail(email)) error.code = "auth/invalid-email"
+      else if (!verifyPassword(password)) error.code = "auth/invalid-password"
+      else if (!verifyLocation(coordinates)) error.code = "auth/invalid-location"
 
-      const userCredential = await createUserWithEmailAndPassword(auth,email,password)
-      const user = userCredential.user
-      console.log(user)
-      const idToken = await user.getIdToken()
-
+      if (error.code) throw error
 
       const res = await fetch('/api/users/create', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${idToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          uid: user.uid,
           displayName: name,
           email: email,
+          password: password,
           location: selectedLocation,
           coordinates: coordinates,
-          timeZoneID: timezoneData.timeZoneId,
-          timeZoneName: timezoneData.timeZoneName,
         })
       })
 
       if (!res.ok) {
-        const error = await res.json()
+        const res = await res.json()
+        error.message = res.message
+        error.code = res.code
         throw error
       }
     } catch (error) {
-      const [errorCode, errorMessage] = [error.code, error.message]
-      console.log(errorCode, errorMessage)
-      errorHandler(error)
+      console.log(error.code)
+      errorHandler(error.code)
     } finally {
       setIsLoading(false)
     }

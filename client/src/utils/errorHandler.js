@@ -1,8 +1,8 @@
 import toast from "react-hot-toast"
 
 
-const ErrorHandler = (error) => {
-  switch (error.code) {
+const ErrorHandler = (code) => {
+  switch (code) {
     //Firebase Auth errors
     case "auth/invalid-email":
       toast.error("The email address is not valid. Please try again.")
