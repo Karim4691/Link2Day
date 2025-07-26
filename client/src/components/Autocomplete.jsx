@@ -29,7 +29,7 @@ function Autocomplete( { setSelectedLocation, setCoordinates } ) {
       setLocation('')
       setSelectedLocation('')
       setCoordinates({ lat: null, lng: null })
-      ErrorHandler(error)
+      ErrorHandler(error.code)
       console.log(error)
     }
   }

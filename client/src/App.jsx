@@ -3,7 +3,7 @@ import Authentication from './pages/Authentication.jsx'
 import YourEvents from "./pages/YourEvents.jsx"
 import Home from './pages/Home.jsx'
 import UserProfile from './pages/UserProfile.jsx'
-import { onAuthStateChanged } from "firebase/auth"
+import { onAuthStateChanged, sendEmailVerification } from "firebase/auth"
 import { useEffect, useState } from "react"
 import { auth } from "./firebase.js"
 import { Toaster } from 'react-hot-toast'
@@ -16,7 +16,13 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) setUser(user)
+      if (user) {
+        if (!user.emailVerified){
+          sendEmailVerification(user)
+          console.log("Sent verification email")
+        }
+        setUser(user)
+      }
       else setUser(null)
 
       setIsFetching(false)
@@ -30,9 +36,11 @@ function App() {
   }
   return (
     <BrowserRouter>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" toastOptions={{
+        duration: 7000
+      }}/>
       <Routes>
-        <Route path="/" element={<Authentication user={user}/>} />
+        <Route path="/" element={<Authentication />} />
         <Route path="/Home" element={<Home user={user} />} />
         <Route path="/Your-events" element={<YourEvents user={user}/>} />
         <Route path="/users/:uid" element={<UserProfile user={user}/>} />

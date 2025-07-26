@@ -14,11 +14,11 @@ export default function FourOFour() {
           404
         </div>
 
-        <div className="text-5xl mt-4 text-transparent bg-clip-text bg-gradient-to-r from-gold to-cyan">
+        <div className="text-5xl mt-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan to-gold">
           Nothing To See Here...
         </div>
 
-        <a className="text-3xl mt-12 cursor-pointer text-transparent bg-clip-text bg-gradient-to-r from-gold to-gold hover:from-gold hover:to-cyan transition duration-500" onClick={() => navigate('/Home')}>
+        <a className="text-3xl mt-12 cursor-pointer text-transparent bg-clip-text bg-gradient-to-r from-cyan to-gold hover:from-gold hover:to-cyan transition duration-500" onClick={() => navigate('/Home')}>
           Find Your Way Back Home
         </a>
 

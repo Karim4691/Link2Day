@@ -30,7 +30,7 @@ function Profile( { user }) {
         setImageUrl(url)
       })
       .catch(error => {
-        errorHandler(error)
+        errorHandler(error.code)
         console.log(error)
       })
       .finally( () => {
