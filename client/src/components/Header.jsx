@@ -52,8 +52,8 @@ function Header( { user } ) {
 
       { !user &&
         <div className="absolute h-full right-0 flex flex-row items-center">
-          <div className="mr-4 cursor-pointer text-black hover:text-gold">Log in</div>
-          <div className="p-3 rounded-md bg-gold text-white text-sm cursor-pointer hover:shadow-lg">Sign up</div>
+          <button type='button' className="mr-4 cursor-pointer text-black hover:text-gold" onClick={() => navigate('/')}>Log in</button>
+          <button type='button' className="p-3 mx-4 rounded-md bg-gold text-white text-sm cursor-pointer hover:shadow-lg" onClick={() => navigate('/?signUp=true')}>Sign up</button>
         </div>
       }
 

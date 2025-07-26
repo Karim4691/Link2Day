@@ -1,16 +1,17 @@
-import { useState } from 'react'
-import { signInWithEmailAndPassword, sendEmailVerification, getIdTokenResult } from 'firebase/auth'
+import { useEffect, useState } from 'react'
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 import { auth } from '../firebase.js'
-import { Navigate } from 'react-router-dom'
 import Autocomplete from '../components/Autocomplete.jsx'
 import errorHandler from '../utils/errorHandler.js'
 import SpinLoader from '../components/SpinLoader.jsx'
 import { verifyName, verifyEmail, verifyLocation, verifyPassword } from '../utils/validators.js'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Modal from '../components/modal.jsx'
+import EmailVerification from '../components/EmailVerification.jsx'
 
-function Authentication({ user, isSignUp }) {
+function Authentication({ user }) {
+  const [searchParams] = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
@@ -19,15 +20,17 @@ function Authentication({ user, isSignUp }) {
   const [isSignUpActive, setIsSignUpActive] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [resetPasswordEmail, setResetPasswordEmail] = useState("")
+
+  useEffect( () => {
+    const signUp = searchParams.get("signUp")
+    if (signUp === 'true') setIsSignUpActive(true)
+  }, [searchParams])
+
 
   const navigate = useNavigate()
   // Redirect to Home if user is already authenticated
-  if(user && user.emailVerified) {
-    return <Navigate to='/Home' />
-  }
-  if (isSignUp) setIsSignUpActive(true)
-
-
+  if(user && user.emailVerified) navigate('/Home')
 
   const handleSignUpChange = () => {
     setName('')
@@ -35,6 +38,8 @@ function Authentication({ user, isSignUp }) {
     setPassword('')
     setSelectedLocation('')
     setCoordinates({ lat: null, lng: null })
+    if (!isSignUpActive) navigate('/?signUp=true')
+    else navigate('')
     setIsSignUpActive(!isSignUpActive)
   }
 
@@ -71,6 +76,7 @@ function Authentication({ user, isSignUp }) {
       }
 
       toast.success('Account created successfully! Please verify your email address.')
+      navigate('/')
       setIsSignUpActive(false) // Switch to sign-in
 
     } catch (error) {
@@ -100,6 +106,21 @@ function Authentication({ user, isSignUp }) {
   const handleEmailChange = (event) => setEmail(event.target.value)
   const handlePasswordChange = (event) => setPassword(event.target.value)
   const handleNameChange = (event) => setName(event.target.value)
+  const handleResetPassword = async () => {
+    if (!verifyEmail(resetPasswordEmail)) {
+      resetPasswordEmail === '' ? errorHandler('auth/missing-email') : errorHandler('auth/invalid-email')
+      return
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, resetPasswordEmail)
+      setShowModal(false)
+      toast.success("Please check your email to change your password.")
+    } catch (error) {
+      console.log(error)
+      errorHandler(error.code)
+    }
+  }
 
   return (
     <div className='absolute h-full w-full flex flex-col'>
@@ -108,7 +129,14 @@ function Authentication({ user, isSignUp }) {
       </h1>
 
       <Modal open={showModal} onClose={() => setShowModal(false)}>
-        <div>OIOI</div>
+        <label className='text-lg p-1' htmlFor='email'>Email address</label>
+        <br />
+        <input className='border border-gray-300 mt-2 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full' value={resetPasswordEmail} type='text' onChange={(e) => setResetPasswordEmail(e.target.value)}/>
+        <div className='flex justify-center items-center'>
+          <button type='button' className='bg-gold text-white rounded-md mt-6 px-6 py-3 text-lg cursor-pointer hover:opacity-80' onClick={handleResetPassword}>
+            Reset password
+          </button>
+        </div>
       </Modal>
 
       <form className='flex flex-col flex-11/12 items-center'>
@@ -140,6 +168,11 @@ function Authentication({ user, isSignUp }) {
             <li className='flex flex-col'>
               <label className='text-lg' htmlFor='email'>Email address</label>
               <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={email} type='text' onChange={handleEmailChange}/>
+              { auth.currentUser && !auth.currentUser.emailVerified &&
+                <div className="flex justify-end">
+                  <EmailVerification user={auth.currentUser}/>
+                </div>
+              }
             </li>
             <li className='flex flex-col mt-6'>
               <label className='text-lg' htmlFor='password'>Password</label>
@@ -159,7 +192,7 @@ function Authentication({ user, isSignUp }) {
 
           {!isSignUpActive &&
             <div className='flex justify-end'>
-              <button type='button' className=' text-gold underline text-lg mt-4 cursor-pointer w-fit' onClick={() => setShowModal(true)}>
+              <button type='button' className='text-gold underline text-lg mt-4 cursor-pointer' onClick={() => setShowModal(true)}>
                 Forgot password
               </button>
             </div>

@@ -13,10 +13,10 @@ export default function Modal( { open, onClose, children }) {
 
   return (
     <div onClick={onClose} className={`
-      fixed inset-0 flex justify-center items-center
+      fixed inset-0 flex justify-center items-center z-50
       ${open ? "visible bg-black/20 overflow-y-hidden" : "invisible"}
     `}>
-      <div className="relative bg-white rounded-lg shadow p-6" onClick={e => e.stopPropagation()}>
+      <div className="relative bg-white rounded-lg shadow p-6 w-96" onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-1 right-1 text-black hover:text-gold cursor-pointer">
           <IoIosClose className="size-8"/>
         </button>

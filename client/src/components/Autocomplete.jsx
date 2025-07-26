@@ -39,12 +39,12 @@ function Autocomplete( { setSelectedLocation, setCoordinates } ) {
       {({ getInputProps, suggestions, getSuggestionItemProps }) => (
         <div className='relative'>
           <input {...getInputProps({
-            className: 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-sm hover:border-gray-500 w-full'
+            className: 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full'
           })} />
 
           <div className='bg-gray-100 rounded-md my-1 z-50 absolute w-full overflow-y-auto'>
             {suggestions.map((suggestion, index) => {
-              const className = "cursor-pointer text-sm px-2 py-1 hover:text-gold"
+              const className = "cursor-pointer text-lg px-2 py-1 hover:text-gold"
               return (
                 <div {...getSuggestionItemProps(suggestion, { className }) } key={index} onMouseEnter={() => setLocation(suggestion.description)}>
                   {suggestion.description}

@@ -7,7 +7,7 @@ export default function FourOFour() {
   return (
     <div className="flex flex-row justify-around h-screen">
       <div className="flex items-center justify-center h-full">
-        <FaLemon className="text-7xl text-gold size-72" />
+        <TbGhost2Filled className="size-72 text-cyan" />
       </div>
       <div className="flex flex-col items-center mt-32 text-transparent bg-clip-text bg-gradient-to-r from-gold to-cyan">
         <div className="text-8xl">
@@ -24,7 +24,7 @@ export default function FourOFour() {
 
       </div>
       <div className="flex items-center justify-center h-full">
-        <TbGhost2Filled className="size-72 text-cyan" />
+        <FaLemon className="text-7xl text-gold size-72" />
       </div>
     </div>
   )
