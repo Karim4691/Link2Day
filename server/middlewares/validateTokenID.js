@@ -8,7 +8,7 @@ const validateTokenID = (req, res, next) => {
     .then((decodedToken) => {
       console.log("Token successfully validated")
 
-      req.user = decodedToken // Store decoded token for next
+      req.uid = decodedToken.uid // Store uid
       next()
     })
     .catch((error) => {

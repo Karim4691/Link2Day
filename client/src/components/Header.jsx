@@ -10,7 +10,6 @@ import { useEffect } from "react"
 
 function Header( { user } ) {
   const [selectProfile, setSelectProfile] = useState(false)
-
   const navigate = useNavigate()
   const dropdown = useRef(null)
   const profile = useRef(null)
@@ -50,14 +49,14 @@ function Header( { user } ) {
         </div>
       </div>
 
-      { !user &&
+      { !user?.emailVerified &&
         <div className="absolute h-full right-0 flex flex-row items-center">
           <button type='button' className="mr-4 cursor-pointer text-black hover:text-gold" onClick={() => navigate('/')}>Log in</button>
           <button type='button' className="p-3 mx-4 rounded-md bg-gold text-white text-sm cursor-pointer hover:shadow-lg" onClick={() => navigate('/?signUp=true')}>Sign up</button>
         </div>
       }
 
-      { user &&
+      { user?.emailVerified &&
         <div className='absolute h-full right-0 flex flex-row items-center justify-end'>
           <div className="flex flex-col justify-center items-center mx-2 hover:text-gold cursor-pointer h-full" >
             <button className="cursor-pointer">

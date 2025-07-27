@@ -14,3 +14,12 @@ export function verifyName(name) {
 export function verifyPassword(password) {
   return password.length >= 6 && password.length <= 100
 }
+
+export function verifyBio(bio) {
+  return bio.length > 0 && bio.length < 60000
+}
+
+export function verifyFileSize(file) {
+  return file.size < 50 * 1024 * 1024
+}
+

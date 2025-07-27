@@ -69,8 +69,16 @@ const ErrorHandler = (code) => {
     case "auth/invalid-name":
       toast.error("Name is required.")
       break
+    case "auth/invalid-bio":
+      toast.error("Invalid bio. Please try again.")
+      break
+
     case "user/not-found":
       toast.error("The user cannot be found.")
+      break
+
+    case "image/too-large":
+      toast.error("The image must be less than 100MB")
       break
 
     default:

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
 import ErrorHandler from '../utils/errorHandler.js'
 
-function Autocomplete( { setSelectedLocation, setCoordinates } ) {
+function Autocomplete( { setSelectedLocation, setCoordinates, setPlaceholder, onErrorResetSelected } ) {
   const [location, setLocation] = useState('') //Used to store the user's input
 
   const onError = (status, clearSuggestions) => {
@@ -27,8 +27,10 @@ function Autocomplete( { setSelectedLocation, setCoordinates } ) {
     }
     catch (error) {
       setLocation('')
-      setSelectedLocation('')
-      setCoordinates({ lat: null, lng: null })
+      if (onErrorResetSelected) {
+        setSelectedLocation('')
+        setCoordinates({ lat: null, lng: null })
+      }
       ErrorHandler(error.code)
       console.log(error)
     }
@@ -39,7 +41,8 @@ function Autocomplete( { setSelectedLocation, setCoordinates } ) {
       {({ getInputProps, suggestions, getSuggestionItemProps }) => (
         <div className='relative'>
           <input {...getInputProps({
-            className: 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full'
+            className: 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full',
+            placeholder : setPlaceholder
           })} />
 
           <div className='bg-gray-100 rounded-md my-1 z-50 absolute w-full overflow-y-auto'>

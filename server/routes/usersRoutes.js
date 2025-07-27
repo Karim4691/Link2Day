@@ -76,4 +76,21 @@ router.get('/:uid', (req, res) => {
   })
 })
 
+router.patch('/update-profile', validateTokenID, async (req, res) => {
+  try {
+    const uid  = req.uid
+    const updates = req.body
+
+    await users.updateOne(
+      { _id: uid },
+      { $set: updates })
+
+    res.status(200).end()
+  }
+  catch(error) {
+    res.status(400).json({ message: error.message, code: error.code})
+    console.log(error)
+  }
+}) 
+
 export default router

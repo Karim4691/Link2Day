@@ -17,10 +17,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        if (!user.emailVerified){
-          sendEmailVerification(user)
-          console.log("Sent verification email")
-        }
+        if (!user.emailVerified) sendEmailVerification(user)
         setUser(user)
       }
       else setUser(null)
@@ -40,8 +37,8 @@ function App() {
         duration: 7000
       }}/>
       <Routes>
-        <Route path="/" element={<Authentication />} />
-        <Route path="/Home" element={<Home user={user} />} />
+        <Route path="/" element={<Authentication user={user}/>} />
+        <Route path="/Home" element={<Home user={user}/>} />
         <Route path="/Your-events" element={<YourEvents user={user}/>} />
         <Route path="/users/:uid" element={<UserProfile user={user}/>} />
         <Route path="*" element={<FourOFour />} />

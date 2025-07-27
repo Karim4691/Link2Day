@@ -30,7 +30,9 @@ function Authentication({ user }) {
 
   const navigate = useNavigate()
   // Redirect to Home if user is already authenticated
-  if(user && user.emailVerified) navigate('/Home')
+  useEffect(() => {
+    if (user?.emailVerified) navigate('/Home')
+  }, [user, navigate])
 
   const handleSignUpChange = () => {
     setName('')
@@ -75,9 +77,10 @@ function Authentication({ user }) {
         throw error
       }
 
+      await signInWithEmailAndPassword(auth, email, password)
       toast.success('Account created successfully! Please verify your email address.')
-      navigate('/')
-      setIsSignUpActive(false) // Switch to sign-in
+      navigate('/') // Switch to sign-in
+      setIsSignUpActive(false)
 
     } catch (error) {
       console.log(error)
@@ -87,20 +90,24 @@ function Authentication({ user }) {
     }
   }
 
-  const handleSignIn = () => {
-    setIsLoading(true)
-    signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
+  const handleSignIn = async () => {
+    try {
+      setIsLoading(true)
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
       console.log(userCredential.user)
       if (!userCredential.user.emailVerified) toast.error("Please verify your email before attempting to sign in")
-      else navigate('/Home')
-    })
-      .catch((error) => {
-        console.log(error)
-        errorHandler(error.code)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+      else {
+        if (user) user.reload() //used for email verification
+        navigate('/Home')
+      }
+    }
+    catch(error) {
+      console.log(error)
+      errorHandler(error.code)
+    }
+    finally {
+      setIsLoading(false)
+    }
   }
 
   const handleEmailChange = (event) => setEmail(event.target.value)
@@ -168,9 +175,9 @@ function Authentication({ user }) {
             <li className='flex flex-col'>
               <label className='text-lg' htmlFor='email'>Email address</label>
               <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={email} type='text' onChange={handleEmailChange}/>
-              { auth.currentUser && !auth.currentUser.emailVerified &&
+              { user && !user.emailVerified && !isSignUpActive &&
                 <div className="flex justify-end">
-                  <EmailVerification user={auth.currentUser}/>
+                  <EmailVerification user={user}/>
                 </div>
               }
             </li>
