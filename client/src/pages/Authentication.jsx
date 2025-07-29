@@ -7,7 +7,7 @@ import SpinLoader from '../components/SpinLoader.jsx'
 import { verifyName, verifyEmail, verifyLocation, verifyPassword } from '../utils/validators.js'
 import toast from 'react-hot-toast'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import Modal from '../components/modal.jsx'
+import Modal from '../components/Modal.jsx'
 import EmailVerification from '../components/EmailVerification.jsx'
 
 function Authentication({ user }) {
@@ -34,7 +34,7 @@ function Authentication({ user }) {
     if (user?.emailVerified) navigate('/Home')
   }, [user, navigate])
 
-  const handleSignUpChange = () => {
+  const handleAuthChange = () => {
     setName('')
     setEmail('')
     setPassword('')
@@ -71,9 +71,9 @@ function Authentication({ user }) {
       })
 
       if (!res.ok) {
-        const res = await res.json()
-        error.message = res.message
-        error.code = res.code
+        const data = await res.json()
+        error.message = data.message
+        error.code = data.code
         throw error
       }
 
@@ -97,7 +97,7 @@ function Authentication({ user }) {
       console.log(userCredential.user)
       if (!userCredential.user.emailVerified) toast.error("Please verify your email before attempting to sign in")
       else {
-        if (user) user.reload() //used for email verification
+        if (user) await user.reload() //used for email verification
         navigate('/Home')
       }
     }
@@ -218,12 +218,12 @@ function Authentication({ user }) {
         <div className='flex flex-row items-center justify-center w-2/6'>
           <div className='text-lg text-black/80 pr-3'>
             Already have an account?</div>
-          <a className='text-gold underline text-lg my-3 cursor-pointer' onClick={handleSignUpChange}>Log in</a>
+          <a className='text-gold underline text-lg my-3 cursor-pointer' onClick={handleAuthChange}>Log in</a>
         </div>}
         {!isSignUpActive &&
         <div className='flex flex-row items-center justify-center w-2/6'>
           <div className='text-lg text-black/80 pr-3'> Don't have an account?</div>
-          <a className='text-gold text-lg underline my-3 cursor-pointer' onClick={handleSignUpChange}>Sign up</a>
+          <a className='text-gold text-lg underline my-3 cursor-pointer' onClick={handleAuthChange}>Sign up</a>
         </div>}
       </form>
     </div>

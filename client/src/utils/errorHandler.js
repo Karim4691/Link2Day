@@ -17,7 +17,10 @@ const ErrorHandler = (code) => {
       toast.error("Email is required.")
       break
     case "auth/email-already-in-use":
-      toast.error("The account already exists. Please try logging in instead.")
+      toast.error("The email address is already in use by another account.")
+      break
+    case "auth/email-already-exists":
+      toast.error("The email address is already in use by another account.")
       break
     case "auth/weak-password":
       toast.error("Password should be at least 6 characters.")
@@ -76,13 +79,16 @@ const ErrorHandler = (code) => {
     case "user/not-found":
       toast.error("The user cannot be found.")
       break
+    case "user/timezone-not-found":
+      toast.error("An error occurred while fetching the timezone data")
+      break
 
     case "image/too-large":
       toast.error("The image must be less than 100MB")
       break
 
     default:
-      toast.error("Something went wrong. Please try again.")
+      toast.error("Something went wrong. Please try again later.")
   }
 }
 

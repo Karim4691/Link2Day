@@ -19,7 +19,7 @@ export default function FourOFour() {
         </div>
 
         <a className="text-3xl mt-12 cursor-pointer text-transparent bg-clip-text bg-gradient-to-r from-cyan to-gold hover:from-gold hover:to-cyan transition duration-500" onClick={() => navigate('/Home')}>
-          Find Your Way Back Home
+          Home lies this way
         </a>
 
       </div>

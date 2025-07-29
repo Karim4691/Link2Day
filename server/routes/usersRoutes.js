@@ -1,20 +1,19 @@
 import express from 'express'
 import validateTokenID from '../middlewares/validateTokenID.js'
 import db from '../mongodb.js'
-import { initializeApp, applicationDefault } from 'firebase-admin/app'
-import { getAuth } from 'firebase-admin/auth'
 import auth from '../firebase.js'
+import getTimeZoneData from '../middlewares/getTimeZoneData.js'
 
 
 const router = express.Router()
 const users = db.collection('users')
 
-router.post('/create', async (req, res) => {
-  const { displayName, email, password, location, coordinates } = req.body
+router.post('/create', getTimeZoneData, async (req, res) => {
+  var { displayName, email, password, location, coordinates, timeZoneId } = req.body
   try {
-    const timeZoneData = await fetch(`https://maps.googleapis.com/maps/api/timezone/json?location=${coordinates.lat},${coordinates.lng}&timestamp=${Math.floor(Date.now() / 1000)}&key=AIzaSyDSXyTmqJ-QhRHZotjpC2ECxu9Jxthgn6M`)
-    
-    const { timeZoneId, timeZoneName } = await timeZoneData.json()
+    const split_location = location.split(',')
+    const l = split_location.length
+    if (l > 2) location = split_location[l-3] + ',' + split_location[l-2] //get only the city & state
 
     const user = await auth.createUser({
       email: email,
@@ -30,7 +29,6 @@ router.post('/create', async (req, res) => {
       coordinates: coordinates, 
       bio : "Hey there! I'm new to Link2Day. Feel free to reach out if you want to connect.", 
       timeZoneId: timeZoneId,
-      timeZoneName: timeZoneName,
       photoURL : "/images/profile/l.svg",
       eventsCreated: [],
       eventsJoined: [], 
@@ -40,8 +38,8 @@ router.post('/create', async (req, res) => {
     res.status(201).end()
   } catch(error) {
       res.status(500).json({
-        message : "Failed to create user", 
-        code : "auth/operation-not-allowed"
+        message : error.message, 
+        code : error.code
       })
       console.log(error)
   }
@@ -70,8 +68,8 @@ router.get('/:uid', (req, res) => {
   .catch((error) => {
     console.log('Error fetching user data:', error)
     res.status(500).json( {
-      message: "Failed to fetch user data",
-      code: "auth/internal-error"
+      message: error.message,
+      code: error.code
     })
   })
 })

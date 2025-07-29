@@ -1,10 +1,10 @@
-import { getAuth } from 'firebase-admin/auth'
+import auth from '../firebase.js'
 
 // Middleware to validate Firebase ID token
 const validateTokenID = (req, res, next) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1]
   
-    getAuth().verifyIdToken(idToken)
+    auth.verifyIdToken(idToken)
     .then((decodedToken) => {
       console.log("Token successfully validated")
 

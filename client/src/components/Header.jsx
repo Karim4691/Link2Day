@@ -34,7 +34,7 @@ function Header( { user } ) {
   }, [])
 
   return (
-    <div className="relative mt-4 px-10 py-3 flex flex-row items-center border-b border-gray-300 w-full h-full">
+    <div className="relative mt-4 px-10 py-3 flex flex-row items-center border-b border-gray-300 w-screen h-24">
       <div className="font-sacramento text-gold text-5xl cursor-pointer mr-5" onClick={() => navigate('/Home')}>
         Link2Day
       </div>
@@ -77,7 +77,7 @@ function Header( { user } ) {
       }
 
       {selectProfile &&
-      <div className="absolute flex flex-col right-4 mt-48 w-48 rounded-md shadow-lg ring-1 ring-black/30" ref={dropdown}>
+      <div className="absolute flex flex-col right-4 mt-48 w-48 rounded-md shadow-lg ring-1 ring-black/30 bg-white" ref={dropdown}>
         <div className="cursor-pointer text-xs mx-2 my-4 hover:text-gold w-fit" onClick={handleViewProfile}>
           View profile
         </div>
