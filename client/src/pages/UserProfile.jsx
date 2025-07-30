@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
 import errorHandler from '../utils/errorHandler'
@@ -149,6 +149,8 @@ function Profile( { user }) {
     }
   }
 
+  const navigate = useNavigate()
+  if (!user?.emailVerified) navigate("/home") // Redirect if email is not verified
   if (isLoading) return <Loading />
   return (
     <div>

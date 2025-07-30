@@ -9,6 +9,10 @@ import { auth } from "./firebase.js"
 import { Toaster } from 'react-hot-toast'
 import Loading from "./components/Loading.jsx"
 import FourOFour from "./pages/FourOFour.jsx"
+import './assets/calendar_theme.css' //used for the styling the calendar
+import 'primereact/resources/primereact.min.css'
+import 'primeicons/primeicons.css'
+
 
 function App() {
   const [user, setUser] = useState(null)
@@ -38,8 +42,8 @@ function App() {
       }}/>
       <Routes>
         <Route path="/" element={<Authentication user={user}/>} />
-        <Route path="/Home" element={<Home user={user}/>} />
-        <Route path="/Your-events" element={<YourEvents user={user}/>} />
+        <Route path="/home" element={<Home user={user}/>} />
+        <Route path="/your-events" element={<YourEvents user={user}/>} />
         <Route path="/users/:uid" element={<UserProfile user={user}/>} />
         <Route path="*" element={<FourOFour />} />
       </Routes>

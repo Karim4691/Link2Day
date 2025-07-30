@@ -18,7 +18,7 @@ export default function FourOFour() {
           Nothing To See Here...
         </div>
 
-        <a className="text-3xl mt-12 cursor-pointer text-transparent bg-clip-text bg-gradient-to-r from-cyan to-gold hover:from-gold hover:to-cyan transition duration-500" onClick={() => navigate('/Home')}>
+        <a className="text-3xl mt-12 cursor-pointer text-transparent bg-clip-text bg-gradient-to-r from-cyan to-gold hover:from-gold hover:to-cyan transition duration-500" onClick={() => navigate('/home')}>
           Home lies this way
         </a>
 

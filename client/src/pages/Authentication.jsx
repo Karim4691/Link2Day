@@ -23,7 +23,7 @@ function Authentication({ user }) {
   const [resetPasswordEmail, setResetPasswordEmail] = useState("")
 
   useEffect( () => {
-    const signUp = searchParams.get("signUp")
+    const signUp = searchParams.get("sign-up")
     if (signUp === 'true') setIsSignUpActive(true)
   }, [searchParams])
 
@@ -31,7 +31,7 @@ function Authentication({ user }) {
   const navigate = useNavigate()
   // Redirect to Home if user is already authenticated
   useEffect(() => {
-    if (user?.emailVerified) navigate('/Home')
+    if (user?.emailVerified) navigate('/home')
   }, [user, navigate])
 
   const handleAuthChange = () => {
@@ -40,7 +40,7 @@ function Authentication({ user }) {
     setPassword('')
     setSelectedLocation('')
     setCoordinates({ lat: null, lng: null })
-    if (!isSignUpActive) navigate('/?signUp=true')
+    if (!isSignUpActive) navigate('/?sign-up=true')
     else navigate('')
     setIsSignUpActive(!isSignUpActive)
   }
@@ -98,7 +98,7 @@ function Authentication({ user }) {
       if (!userCredential.user.emailVerified) toast.error("Please verify your email before attempting to sign in")
       else {
         if (user) await user.reload() //used for email verification
-        navigate('/Home')
+        navigate('/home')
       }
     }
     catch(error) {
