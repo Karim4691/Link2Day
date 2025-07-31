@@ -166,11 +166,10 @@ function Profile( { user }) {
           <li className='mt-2'>
             <label className='text-lg p-1'>Location</label>
             <br />
-            <Autocomplete key={refreshKey} setSelectedLocation={setLocation} setCoordinates={setCoordinates} setPlaceholder={location} onErrorResetSelected={false}/>
+            <Autocomplete key={refreshKey} setSelectedLocation={setLocation} setCoordinates={setCoordinates} placeholder={location} onErrorFailToResetSelected={true}/>
           </li>
           <li className='mt-2'>
             <label className='text-lg p-1'>Biography</label>
-            <br />
             <textarea className='border border-gray-300 mt-2 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full overflow-y-scroll overflow-x-hidden' value={bio} onChange={(e) => setBio(e.target.value)}/>
           </li>
         </ul>
@@ -186,7 +185,8 @@ function Profile( { user }) {
       <div className='bg-gray-100 h-screen pt-20 pl-20 w-screen flex flex-row'>
         <div className='flex flex-col items-center'>
           <img src={imageUrl} className='rounded-full w-48 h-48'/>
-          {user?.uid === uid && <label>
+          {user?.uid === uid &&
+          <label>
             <input className='hidden' type='file' accept='image/*'
               onChange={(e) => {
                 const file = e.target.files?.[0]

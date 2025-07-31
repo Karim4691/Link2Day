@@ -1,8 +1,6 @@
 import Header from '../components/Header.jsx'
 import { FaPlus } from "react-icons/fa"
 import { useState } from 'react'
-import Modal from '../components/Modal.jsx'
-import { Calendar } from 'primereact/calendar'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 
@@ -16,7 +14,8 @@ function YourEvents({ user }) {
 
   const navigate = useNavigate()
 
-  if (!user?.emailVerified) navigate("/home") // Redirect if email is not verified
+  if (!user?.emailVerified) navigate('/Home')
+
 
   return (
     <div>

@@ -1,6 +1,6 @@
 export function verifyEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email) && email.length <= 100
+  return emailRegex.test(email) && email.length <= 200
 }
 
 export function verifyLocation(coordinates) {
@@ -16,10 +16,26 @@ export function verifyPassword(password) {
 }
 
 export function verifyBio(bio) {
-  return bio.length > 0 && bio.length < 60000
+  return bio.trim().length > 0 && bio.length < 60000
 }
 
 export function verifyFileSize(file) {
   return file.size < 50 * 1024 * 1024
+}
+
+export function verifyTitle(title) {
+  return title.trim().length > 0 && title.length <= 200
+}
+
+export function verifyFromDate(fromDate) {
+  return fromDate !== null && fromDate > new Date()
+}
+
+export function verifyToDate(fromDate, toDate) {
+  return toDate !== null && toDate > fromDate
+}
+
+export function verifyDetails(details) {
+  return details.trim().length > 0 && details.length <= 60000
 }
 

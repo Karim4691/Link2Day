@@ -2,8 +2,8 @@ import { useState } from 'react'
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
 import ErrorHandler from '../utils/errorHandler.js'
 
-function Autocomplete( { setSelectedLocation, setCoordinates, setPlaceholder, onErrorResetSelected } ) {
-  const [location, setLocation] = useState('') //Used to store the user's input
+function Autocomplete( { setSelectedLocation, setCoordinates, placeholder, onErrorFailToResetSelected, inputClass } ) {
+  const [location, setLocation] = useState('') //Used to store the user's input (*and not the selection*)
 
   const onError = (status, clearSuggestions) => {
     console.log('Google Maps API returned error with status: ', status)
@@ -27,7 +27,7 @@ function Autocomplete( { setSelectedLocation, setCoordinates, setPlaceholder, on
     }
     catch (error) {
       setLocation('')
-      if (onErrorResetSelected) {
+      if (!onErrorFailToResetSelected) {
         setSelectedLocation('')
         setCoordinates({ lat: null, lng: null })
       }
@@ -41,8 +41,8 @@ function Autocomplete( { setSelectedLocation, setCoordinates, setPlaceholder, on
       {({ getInputProps, suggestions, getSuggestionItemProps }) => (
         <div className='relative'>
           <input {...getInputProps({
-            className: 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full',
-            placeholder : setPlaceholder
+            className: inputClass || 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full',
+            placeholder : placeholder || ""
           })} />
 
           <div className='bg-gray-100 rounded-md my-1 z-50 absolute w-full overflow-y-auto'>

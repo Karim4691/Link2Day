@@ -110,9 +110,6 @@ function Authentication({ user }) {
     }
   }
 
-  const handleEmailChange = (event) => setEmail(event.target.value)
-  const handlePasswordChange = (event) => setPassword(event.target.value)
-  const handleNameChange = (event) => setName(event.target.value)
   const handleResetPassword = async () => {
     if (!verifyEmail(resetPasswordEmail)) {
       resetPasswordEmail === '' ? errorHandler('auth/missing-email') : errorHandler('auth/invalid-email')
@@ -163,7 +160,7 @@ function Authentication({ user }) {
             { isSignUpActive &&
               <li className='flex flex-col mb-6'>
                 <label className='text-lg'>Your name</label>
-                <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={name} type='text' onChange={handleNameChange}/>
+                <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={name} type='text' onChange={(e) => setName(e.target.value)}/>
               </li>
             }
             { isSignUpActive &&
@@ -174,7 +171,7 @@ function Authentication({ user }) {
             }
             <li className='flex flex-col'>
               <label className='text-lg' htmlFor='email'>Email address</label>
-              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={email} type='text' onChange={handleEmailChange}/>
+              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={email} type='text' onChange={(e) => setEmail(e.target.value)}/>
               { user && !user.emailVerified && !isSignUpActive &&
                 <div className="flex justify-end">
                   <EmailVerification user={user}/>
@@ -183,7 +180,7 @@ function Authentication({ user }) {
             </li>
             <li className='flex flex-col mt-6'>
               <label className='text-lg' htmlFor='password'>Password</label>
-              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={password} type='password' onChange={handlePasswordChange}/>
+              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={password} type='password' onChange={(e) => setPassword(e.target.value)}/>
             </li>
           </ul>
 

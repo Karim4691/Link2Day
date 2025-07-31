@@ -87,6 +87,18 @@ const ErrorHandler = (code) => {
       toast.error("The image must be less than 100MB")
       break
 
+    case "event/title-invalid":
+      toast.error("The event title is invalid. Please try again.")
+      break
+    case "event/from-date-invalid":
+      toast.error("The event cannot start in the past. Please select a valid date.")
+      break
+    case "event/to-date-invalid":
+      toast.error("The event cannot end before it starts. Please select a valid date.")
+      break
+    case "event/invalid-details":
+      toast.error("The event details are invalid. Please try again.")
+      break
     default:
       toast.error("Something went wrong. Please try again later.")
   }
