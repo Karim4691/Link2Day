@@ -2,13 +2,16 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Header from "../components/Header"
 import { storage } from "../firebase.js"
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
+import { ref, uploadBytes, getDownloadURL, getBytes, getBlob } from "firebase/storage"
 import errorHandler from "../utils/errorHandler"
-import { verifyFileSize, verifyFromDate, verifyTitle, verifyToDate, verifyLocation, verifyDetails } from "../utils/validators.js"
+import { verifyFileSize, verifyAndSetEventTime, verifyTitle, verifyLocation, verifyDetails } from "../utils/validators.js"
 import Autocomplete from "../components/Autocomplete.jsx"
 import { Calendar } from 'primereact/calendar'
+import TimePicker from 'react-time-picker'
+import Loading from "../components/Loading.jsx"
 
 export default function CreateEvent({ user }) {
+  const [isLoading, setIsLoading] = useState(true)
   const [imgURL, setImgURL] = useState(null)
   const [imageFile, setImageFile] = useState(null) //the image file
   const [title, setTitle] = useState("")
@@ -16,9 +19,12 @@ export default function CreateEvent({ user }) {
   const [location, setLocation] = useState("")
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null })
   const [fromDate, setFromDate] = useState(null) //first day of event
-  const [toDate, setToDate] = useState(null) //last of event
+  const [fromTime, setFromTime] = useState("00:00")
+  const [toDate, setToDate] = useState(null) //last day of event
+  const [toTime, setToTime] = useState("00:00")
+  const [eventStart, setEventStart] = useState(null) //utc timestamp of start in seconds
+  const [eventEnd, setEventEnd] = useState(null) //utc timestamp of end in seconds
   const navigate = useNavigate()
-
   if (!user?.emailVerified) navigate('/Home')
   useEffect(() => {
     async function fetchDefaultImage() {
@@ -29,6 +35,8 @@ export default function CreateEvent({ user }) {
       } catch (error) {
         console.log(error)
         errorHandler(error.code)
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchDefaultImage()
@@ -49,15 +57,27 @@ export default function CreateEvent({ user }) {
 
   const handleCreateEvent = async () => {
     try {
-      if (!verifyTitle(title)) errorHandler('event/title-invalid')
-      if (!verifyLocation(coordinates)) errorHandler('auth/invalid-location')
-      if (!verifyFromDate(fromDate)) errorHandler('event/from-date-invalid')
-      if (!verifyToDate(fromDate, toDate)) errorHandler('event/to-date-invalid')
-      if (!verifyDetails(details)) errorHandler('event/invalid-details')
+      if (!verifyTitle(title)) {
+        errorHandler('event/title-invalid')
+        return
+      }
+      if (!verifyLocation(coordinates)) {
+        errorHandler('auth/invalid-location')
+        return
+      }
+      if (!verifyAndSetEventTime(fromDate, fromTime, toDate, toTime, setEventStart, setEventEnd)) {
+        errorHandler('event/invalid-time')
+        return
+      }
+      if (!verifyDetails(details)) {
+        errorHandler('event/invalid-details')
+        return
+      }
 
       var res = await fetch('/api/events/create', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -65,8 +85,8 @@ export default function CreateEvent({ user }) {
           details,
           location,
           coordinates,
-          fromDate,
-          toDate,
+          eventStart,
+          eventEnd,
         })
       })
 
@@ -77,16 +97,14 @@ export default function CreateEvent({ user }) {
 
       var data = await res.json()
       const eventId = data.eventId
-      if (imageFile) {
-        const storageRef = ref(storage, `/images/events/${user.uid}/${eventId}`)
-        await uploadBytes(storageRef, imageFile)
-        //update mongodb (todo)
+      const storageRef = ref(storage, `/images/events/${user.uid}/${eventId}`)
+      if (imageFile) await uploadBytes(storageRef, imageFile) //upload user image it exists
+      else { //else upload default image
+        const defaultImageRef = ref(storage, '/images/events/sunset.jpg')
+        const defaultImage = await getBlob(defaultImageRef)
+        await uploadBytes(storageRef, defaultImage)
       }
 
-      if (!res.ok) {
-        const error = await res.json()
-        throw error
-      }
       console.log("Event created successfully")
     } catch(error) {
       console.log(error)
@@ -94,11 +112,15 @@ export default function CreateEvent({ user }) {
     }
   }
 
+  if (isLoading) return (
+    <Loading />
+  )
+
   return (
     <>
       <Header user={user} />
-      <div className="flex flex-row w-screen h-screen bg-gray-100">
-        <div className="flex flex-col w-2xl items-center mt-20 p-4 px-10">
+      <div className="flex flex-row w-screen h-screen">
+        <div className="flex flex-col w-md items-center mt-20 p-4 px-10">
           <img src={imgURL} className='rounded-xl w-72 h-72'/>
           <label>
             <input className='hidden' type='file' accept='image/*'
@@ -111,8 +133,8 @@ export default function CreateEvent({ user }) {
             </div>
           </label>
         </div>
-        <form className="w-[30rem] ml-6">
-          <legend className='text-5xl font-bold p-2 mt-12'> Create an event </legend>
+        <form className="w-[30rem] ml-6 mr-8">
+          <legend className='text-5xl font-bold p-2 mt-12 font-tinos'> Create An Event </legend>
 
           <fieldset className="flex flex-col items-center mt-8 p-2 w-full">
             <ul className="flex flex-col w-full">
@@ -130,11 +152,31 @@ export default function CreateEvent({ user }) {
                 <div className="flex flex-row-start mt-2">
                   <div className="flex flex-col w-1/2 mr-3">
                     <label className="text-2xl font-bold mb-1">From</label>
-                    <Calendar value={fromDate} onChange={(e) => setFromDate(e.value)} showIcon dateFormat="dd/mm/yy" hourFormat="12" readOnlyInput hideOnDateTimeSelect showTime/>
+                    <Calendar value={fromDate} onChange={(e) => setFromDate(e.value)} dateFormat="dd/mm/yy" showIcon hideOnDateTimeSelect readOnlyInput/>
+                    <div className="flex justify-center items-center">
+                      <TimePicker
+                        onChange={setFromTime}
+                        value={fromTime}
+                        disableClock={true}
+                        format="hh:mm a"
+                        clearIcon={null}
+                        className={'mt-1 p-1 rounded-md focus:border-gold text-md text-gray-600 '}
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-col w-1/2 ml-3">
                     <label className="text-2xl font-bold mb-1">To</label>
-                    <Calendar value={toDate} onChange={(e) => setToDate(e.value)} showIcon dateFormat="dd/mm/yy" hourFormat="12" readOnlyInput hideOnDateTimeSelect showTime/>
+                    <Calendar value={toDate} onChange={(e) => setToDate(e.value)} showIcon dateFormat="dd/mm/yy" readOnlyInput hideOnDateTimeSelect/>
+                    <div className="flex justify-center items-center">
+                      <TimePicker
+                        onChange={setToTime}
+                        value={toTime}
+                        disableClock={true}
+                        format="hh:mm a"
+                        clearIcon={null}
+                        className={'mt-1 p-1 rounded-md focus:border-gold text-md text-gray-600 '}
+                      />
+                    </div>
                   </div>
                 </div>
               </li>
@@ -147,7 +189,7 @@ export default function CreateEvent({ user }) {
           </fieldset>
 
           <div className="flex items-center justify-center w-full">
-            <button type="button" className="bg-gradient-to-r from-cyan to-gold text-white m-4 px-4 py-2 rounded-lg text-lg cursor-pointer hover:opacity-90" onClick={handleCreateEvent}>
+            <button type="button" className="bg-gradient-to-r from-cyan to-gold text-white m-4 px-4 py-2  rounded-lg text-lg cursor-pointer hover:opacity-90" onClick={handleCreateEvent}>
               Create event
             </button>
           </div>

@@ -29,13 +29,13 @@ router.post('/create', getTimeZoneData, async (req, res) => {
       coordinates: coordinates, 
       bio : "Hey there! I'm new to Link2Day. Feel free to reach out if you want to connect.", 
       timeZoneId: timeZoneId,
-      photoURL : "/images/profile/l.svg",
+      photoURL : `/images/profile/${user.uid}`,
       eventsCreated: [],
       eventsJoined: [], 
       messagedUsers: [],
     })
     console.log('user created in MongoDB')
-    res.status(201).end()
+    res.status(201).json({ uid : user.uid })
   } catch(error) {
       res.status(500).json({
         message : error.message, 

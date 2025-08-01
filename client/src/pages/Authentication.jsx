@@ -9,6 +9,8 @@ import toast from 'react-hot-toast'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Modal from '../components/Modal.jsx'
 import EmailVerification from '../components/EmailVerification.jsx'
+import { storage } from '../firebase.js'
+import { ref, uploadBytes, getBlob } from 'firebase/storage'
 
 function Authentication({ user }) {
   const [searchParams] = useSearchParams()
@@ -76,6 +78,13 @@ function Authentication({ user }) {
         error.code = data.code
         throw error
       }
+
+      const { uid } = await res.json()
+      // upload default profile image to proper firebase storage path
+      const storageRef = ref(storage, `images/profile/${uid}`)
+      const defaultImageRef = ref(storage, '/images/profile/l.svg')
+      const defaultImage = await getBlob(defaultImageRef)
+      await uploadBytes(storageRef, defaultImage)
 
       await signInWithEmailAndPassword(auth, email, password)
       toast.success('Account created successfully! Please verify your email address.')

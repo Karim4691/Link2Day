@@ -27,12 +27,20 @@ export function verifyTitle(title) {
   return title.trim().length > 0 && title.length <= 200
 }
 
-export function verifyFromDate(fromDate) {
-  return fromDate !== null && fromDate > new Date()
-}
-
-export function verifyToDate(fromDate, toDate) {
-  return toDate !== null && toDate > fromDate
+export function verifyAndSetEventTime(fromDate, fromTime, toDate, toTime, setEventStart, setEventEnd) {
+  if (!toDate || !toTime || !fromDate || !fromTime) return false
+  const startDateTime = new Date(fromDate)
+  const [fromHours, fromMinutes] = fromTime.split(":").map(Number)
+  startDateTime.setHours(fromHours, fromMinutes)
+  const endDateTime = new Date(toDate)
+  const [toHours, toMinutes] = toTime.split(":").map(Number)
+  endDateTime.setHours(toHours, toMinutes)
+  if (startDateTime > new Date() && endDateTime > startDateTime) {
+    setEventStart(Math.floor(startDateTime.getTime() / 1000))
+    setEventEnd(Math.floor(endDateTime.getTime() / 1000))
+    return true
+  }
+  return false
 }
 
 export function verifyDetails(details) {

@@ -90,14 +90,17 @@ const ErrorHandler = (code) => {
     case "event/title-invalid":
       toast.error("The event title is invalid. Please try again.")
       break
-    case "event/from-date-invalid":
-      toast.error("The event cannot start in the past. Please select a valid date.")
-      break
-    case "event/to-date-invalid":
-      toast.error("The event cannot end before it starts. Please select a valid date.")
+    case "event/invalid-time":
+      toast.error("The event times are invalid. Please select a proper time range.")
       break
     case "event/invalid-details":
       toast.error("The event details are invalid. Please try again.")
+      break
+    case "event/not-found":
+      toast.error("The event cannot be found.")
+      break
+    case "event/unauthorized":
+      toast.error("You are not authorized to perform this action.")
       break
     default:
       toast.error("Something went wrong. Please try again later.")

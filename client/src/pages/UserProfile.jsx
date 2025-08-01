@@ -16,7 +16,8 @@ function Profile( { user }) {
   const { uid } = useParams()
   const [userData, setUserData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [imageUrl, setImageUrl] = useState(null)
+  const [imageUrl, setImageUrl] = useState(null) //profile image url
+  const [causeRender, setCauseRender] = useState(0) //used to re-render after image upload
   const [showModal, setShowModal] = useState(false)
   //The attributes below are used to update the user's profile
   const [name, setName] = useState("")
@@ -116,36 +117,13 @@ function Profile( { user }) {
         return
       }
 
-      setIsLoading(true)
-      const storageRef = ref(storage, `images/profile/${uid}`)
-      await uploadBytes(storageRef, file)
+      await uploadBytes(imageUrl, file)
 
-      const url = await getDownloadURL(storageRef)
-
-      const idToken = await user.getIdToken()
-      var res = await fetch(`/api/users/update-profile`, {
-        method : 'PATCH',
-        headers: {
-          Authorization: `Bearer ${idToken}`,
-          'Content-Type' : 'application/json'
-        },
-        body : JSON.stringify({
-          photoURL:url
-        })
-      })
-
-      if (!res.ok) {
-        res = await res.json()
-        throw res
-      }
-
-      setImageUrl(url) //re-render profile picture
+      setCauseRender((prev) => prev + 1) //re-render profile picture
 
     } catch(error) {
       console.log(error)
       errorHandler(error.code)
-    } finally {
-      setIsLoading(false)
     }
   }
 

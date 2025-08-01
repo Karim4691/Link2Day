@@ -13,6 +13,7 @@ import CreateEvent from "./pages/CreateEvent.jsx"
 import './assets/calendar_theme.css'
 import 'primereact/resources/primereact.min.css'
 import 'primeicons/primeicons.css'
+import 'react-time-picker/dist/TimePicker.css'
 
 
 function App() {
