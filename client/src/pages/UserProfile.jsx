@@ -17,9 +17,8 @@ function Profile( { user }) {
   const [userData, setUserData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [imageUrl, setImageUrl] = useState(null) //profile image url
-  const [causeRender, setCauseRender] = useState(0) //used to re-render after image upload
+  const [file, setFile] = useState(null) //profile image
   const [showModal, setShowModal] = useState(false)
-  //The attributes below are used to update the user's profile
   const [name, setName] = useState("")
   const [location, setLocation] = useState("")
   const [coordinates, setCoordinates] = useState({
@@ -36,7 +35,7 @@ function Profile( { user }) {
         const data = await res.json()
         if (data.code !== undefined) throw data // Handle error from API
         setUserData(data)
-        const imageRef = ref(storage, `${data.photoURL}`)
+        const imageRef = ref(storage, `${data.photoUrl}`)
         const url = await getDownloadURL(imageRef) //get profile image url
         setImageUrl(url)
       } catch (error) {
@@ -58,6 +57,15 @@ function Profile( { user }) {
       setRefreshKey((prev) => prev+1) //reset autocomplete component
     }
   }, [user, uid, userData, showModal])
+
+  useEffect(() => {
+    if (!file) return
+
+    const objectUrl = URL.createObjectURL(file)
+    setImageUrl(objectUrl)
+
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [file])
 
   const handleUpdateProfile = async () => {
     try {
@@ -116,15 +124,16 @@ function Profile( { user }) {
         errorHandler('image/too-large')
         return
       }
+      const imageRef = ref(storage, `images/profile/${user.uid}`)
+      await uploadBytes(imageRef, file)
 
-      await uploadBytes(imageUrl, file)
-
-      setCauseRender((prev) => prev + 1) //re-render profile picture
-
+      //trigger re-render of profile image
+      setFile(file)
     } catch(error) {
       console.log(error)
       errorHandler(error.code)
     }
+
   }
 
   const navigate = useNavigate()
@@ -161,7 +170,7 @@ function Profile( { user }) {
       }
 
       <div className='bg-gray-100 h-screen pt-20 pl-20 w-screen flex flex-row'>
-        <div className='flex flex-col items-center'>
+        <div className='flex flex-col items-center w-1/4'>
           <img src={imageUrl} className='rounded-full w-48 h-48'/>
           {user?.uid === uid &&
           <label>
@@ -175,16 +184,16 @@ function Profile( { user }) {
             </div>
           </label>
           }
-          <div className='flex flex-col py-3 px-2 mt-8 text-md bg-white rounded-md'>
+          <div className='flex flex-col py-3 px-2 mt-8 text-md bg-white rounded-md w-full'>
             <div className='text-3xl mx-1 mb-4'>
               {userData.name}
             </div>
-            <div className='flex flex-row items-center mb-4'>
+            <div className='flex flex-row items-center mb-4 text-lg'>
               <IoLocationSharp className='text-gold w-6 mx-1'/>
               {userData.location}
             </div>
             { user?.uid === uid &&
-              <button className='flex flex-row items-center justify-center  cursor-pointer text-cyan h-fit w-fit' onClick={() => setShowModal(true)}>
+              <button className='flex flex-row items-center justify-center  cursor-pointer text-cyan h-fit w-fit text-lg' onClick={() => setShowModal(true)}>
                 <AiFillEdit className='w-6 mx-1 text-cyan'/>
                 Edit Profile
               </button>
@@ -196,7 +205,7 @@ function Profile( { user }) {
           <div className='flex flex-row justify-around items-center'>
             <ul className='flex flex-col items-center justify-center'>
               <li className='text-5xl'>
-                {userData.eventsCreated}
+                {userData.eventsHosted}
               </li>
               <li>
                 Events Hosted

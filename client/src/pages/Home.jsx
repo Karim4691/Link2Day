@@ -8,7 +8,7 @@ function Home({ user }) {
     <div className="relative w-screen h-screen">
       <Header user={user} />
       <div className="bg-gray-100 w-screen h-screen">
-        <h2 className="font-semibold pt-24 py-2 ml-24 text-3xl">
+        <h2 className="font-semibold font-tinos pt-24 py-2 ml-24 text-5xl">
           Events near you
         </h2>
 

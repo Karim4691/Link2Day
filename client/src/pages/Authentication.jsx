@@ -10,7 +10,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import Modal from '../components/Modal.jsx'
 import EmailVerification from '../components/EmailVerification.jsx'
 import { storage } from '../firebase.js'
-import { ref, uploadBytes, getBlob } from 'firebase/storage'
+import { ref, uploadBytes, getBytes } from 'firebase/storage'
 
 function Authentication({ user }) {
   const [searchParams] = useSearchParams()
@@ -27,6 +27,7 @@ function Authentication({ user }) {
   useEffect( () => {
     const signUp = searchParams.get("sign-up")
     if (signUp === 'true') setIsSignUpActive(true)
+    else setIsSignUpActive(false)
   }, [searchParams])
 
 
@@ -44,7 +45,6 @@ function Authentication({ user }) {
     setCoordinates({ lat: null, lng: null })
     if (!isSignUpActive) navigate('/?sign-up=true')
     else navigate('')
-    setIsSignUpActive(!isSignUpActive)
   }
 
   const handleSignUp = async () => {
@@ -80,13 +80,14 @@ function Authentication({ user }) {
       }
 
       const { uid } = await res.json()
+      await signInWithEmailAndPassword(auth, email, password) // Sign in the user after account creation
+
       // upload default profile image to proper firebase storage path
+      const fetchDefaultImage = await fetch('/l.svg')
+      const defaultImage = await fetchDefaultImage.blob()
       const storageRef = ref(storage, `images/profile/${uid}`)
-      const defaultImageRef = ref(storage, '/images/profile/l.svg')
-      const defaultImage = await getBlob(defaultImageRef)
       await uploadBytes(storageRef, defaultImage)
 
-      await signInWithEmailAndPassword(auth, email, password)
       toast.success('Account created successfully! Please verify your email address.')
       navigate('/') // Switch to sign-in
       setIsSignUpActive(false)

@@ -9,6 +9,7 @@ import Autocomplete from "../components/Autocomplete.jsx"
 import { Calendar } from 'primereact/calendar'
 import TimePicker from 'react-time-picker'
 import Loading from "../components/Loading.jsx"
+import toast from "react-hot-toast"
 
 export default function CreateEvent({ user }) {
   const [isLoading, setIsLoading] = useState(true)
@@ -22,24 +23,18 @@ export default function CreateEvent({ user }) {
   const [fromTime, setFromTime] = useState("00:00")
   const [toDate, setToDate] = useState(null) //last day of event
   const [toTime, setToTime] = useState("00:00")
-  const [eventStart, setEventStart] = useState(null) //utc timestamp of start in seconds
-  const [eventEnd, setEventEnd] = useState(null) //utc timestamp of end in seconds
   const navigate = useNavigate()
   if (!user?.emailVerified) navigate('/Home')
+  //Load default image
   useEffect(() => {
-    async function fetchDefaultImage() {
-      try {
-        const storageRef = ref(storage, '/images/events/sunset.jpg')
-        const url = await getDownloadURL(storageRef)
-        setImgURL(url)
-      } catch (error) {
-        console.log(error)
-        errorHandler(error.code)
-      } finally {
-        setIsLoading(false)
-      }
+    const loadDefaultImage = async () => {
+      const fetchDefaultImage = await fetch('/sunset.jpg')
+      const defaultImage = await fetchDefaultImage.blob()
+      setImageFile(defaultImage)
+      setImgURL(URL.createObjectURL(defaultImage))
+      setIsLoading(false)
     }
-    fetchDefaultImage()
+    loadDefaultImage()
   }, [])
 
   const handleImageUpload = async (file) => {
@@ -65,7 +60,8 @@ export default function CreateEvent({ user }) {
         errorHandler('auth/invalid-location')
         return
       }
-      if (!verifyAndSetEventTime(fromDate, fromTime, toDate, toTime, setEventStart, setEventEnd)) {
+      const [eventStart, eventEnd] = verifyAndSetEventTime(fromDate, fromTime, toDate, toTime)
+      if (!eventStart || !eventEnd) {
         errorHandler('event/invalid-time')
         return
       }
@@ -97,15 +93,13 @@ export default function CreateEvent({ user }) {
 
       var data = await res.json()
       const eventId = data.eventId
-      const storageRef = ref(storage, `/images/events/${user.uid}/${eventId}`)
-      if (imageFile) await uploadBytes(storageRef, imageFile) //upload user image it exists
-      else { //else upload default image
-        const defaultImageRef = ref(storage, '/images/events/sunset.jpg')
-        const defaultImage = await getBlob(defaultImageRef)
-        await uploadBytes(storageRef, defaultImage)
-      }
 
-      console.log("Event created successfully")
+      //upload image to firebase storage
+      const storageRef = ref(storage, `/images/events/${user.uid}/${eventId}`)
+      await uploadBytes(storageRef, imageFile)
+
+      toast.success('Event created successfully!')
+      navigate(`/events/${eventId}`)
     } catch(error) {
       console.log(error)
       errorHandler(error.code)

@@ -52,7 +52,7 @@ function Header( { user } ) {
       { !user?.emailVerified &&
         <div className="absolute h-full right-0 flex flex-row items-center">
           <button type='button' className="mr-4 cursor-pointer text-black hover:text-gold" onClick={() => navigate('/')}>Log in</button>
-          <button type='button' className="p-3 mx-4 rounded-md bg-gold text-white text-sm cursor-pointer hover:shadow-lg" onClick={() => navigate('/?signUp=true')}>Sign up</button>
+          <button type='button' className="p-3 mx-4 rounded-md bg-gold text-white text-sm cursor-pointer hover:shadow-lg" onClick={() => navigate('/?sign-up=true')}>Sign up</button>
         </div>
       }
 

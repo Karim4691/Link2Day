@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast'
 import Loading from "./components/Loading.jsx"
 import FourOFour from "./pages/FourOFour.jsx"
 import CreateEvent from "./pages/CreateEvent.jsx"
+import Event from "./pages/Event.jsx"
 import './assets/calendar_theme.css'
 import 'primereact/resources/primereact.min.css'
 import 'primeicons/primeicons.css'
@@ -49,6 +50,7 @@ function App() {
         <Route path="/users/:uid" element={<UserProfile user={user}/>} />
         <Route path="/your-events/create" element={<CreateEvent user={user}/>} />
         <Route path="*" element={<FourOFour />} />
+        <Route path='/events/:eid' element={<Event user={user}/>} />
       </Routes>
     </BrowserRouter>
 

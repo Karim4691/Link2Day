@@ -11,10 +11,6 @@ const users = db.collection('users')
 router.post('/create', getTimeZoneData, async (req, res) => {
   var { displayName, email, password, location, coordinates, timeZoneId } = req.body
   try {
-    const split_location = location.split(',')
-    const l = split_location.length
-    if (l > 2) location = split_location[l-3] + ',' + split_location[l-2] //get only the city & state
-
     const user = await auth.createUser({
       email: email,
       password: password,
@@ -29,10 +25,9 @@ router.post('/create', getTimeZoneData, async (req, res) => {
       coordinates: coordinates, 
       bio : "Hey there! I'm new to Link2Day. Feel free to reach out if you want to connect.", 
       timeZoneId: timeZoneId,
-      photoURL : `/images/profile/${user.uid}`,
-      eventsCreated: [],
-      eventsJoined: [], 
-      messagedUsers: [],
+      photoUrl : `/images/profile/${user.uid}`,
+      eventsHosted: [],
+      eventsJoined: [],
     })
     console.log('user created in MongoDB')
     res.status(201).json({ uid : user.uid })
@@ -60,8 +55,8 @@ router.get('/:uid', (req, res) => {
       name: user.name,
       location: user.location,
       bio: user.bio,
-      photoURL: user.photoURL,
-      eventsCreated: user.eventsCreated.length,
+      photoUrl: user.photoUrl,
+      eventsHosted: user.eventsHosted.length,
       eventsJoined: user.eventsJoined.length,
     })
   })
@@ -74,7 +69,7 @@ router.get('/:uid', (req, res) => {
   })
 })
 
-router.patch('/update-profile', validateTokenID, async (req, res) => {
+router.patch('/update-profile', validateTokenID, getTimeZoneData, async (req, res) => {
   try {
     const uid  = req.uid
     const updates = req.body
