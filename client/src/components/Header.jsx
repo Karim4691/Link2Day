@@ -1,15 +1,22 @@
 import { CiSearch } from "react-icons/ci"
-import { IoChatbubbleOutline } from "react-icons/io5"
-import { LiaUserFriendsSolid } from "react-icons/lia"
-import { CgProfile } from "react-icons/cg"
 import { useRef, useState } from "react"
 import { auth } from "../firebase"
 import { signOut } from "firebase/auth"
 import { useNavigate } from "react-router-dom"
 import { useEffect } from "react"
+import { getDownloadURL, ref } from "firebase/storage"
+import { storage } from "../firebase.js"
+import Loading from "./Loading.jsx"
+import Autocomplete from "./Autocomplete.jsx"
 
-function Header( { user } ) {
+function Header( { user, profileImgUrl } ) {
   const [selectProfile, setSelectProfile] = useState(false)
+  const [imgUrl, setImgUrl] = useState(profileImgUrl) // user's profile image url
+  const [isLoading, setIsLoading] = useState(false) // loading state for profile image
+  const [location, setLocation] = useState("") // search location
+  const [coordinates, setCoordinates] = useState({ lat: null, lng: null }) // user's coordinates
+  const [search, setSearch] = useState("") // search query
+
   const navigate = useNavigate()
   const dropdown = useRef(null)
   const profile = useRef(null)
@@ -33,20 +40,41 @@ function Header( { user } ) {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  useEffect(() => {
+    setIsLoading(true)
+    async function fetchProfileImage() {
+      try {
+        if (user?.emailVerified) {
+          const imgRef = ref(storage, `images/profile/${user.uid}`)
+          setImgUrl(await getDownloadURL(imgRef))
+        }
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchProfileImage()
+  }, [user])
+
+  useEffect(() => {
+    if (profileImgUrl) {
+      setImgUrl(profileImgUrl)
+    }
+  }, [profileImgUrl])
+
+  if (isLoading) return <Loading />
+
   return (
     <div className="relative mt-4 px-10 py-3 flex flex-row items-center border-b border-gray-300 w-screen h-24">
       <div className="font-sacramento text-gold text-5xl cursor-pointer mr-5" onClick={() => navigate('/Home')}>
         Link2Day
       </div>
 
-      <div className="relative flex flex-row items-center justify-center w-2/5 mx-5">
-        <input className="w-1/2 border border-gray-300 py-2 p-1 rounded-l-md shadow-inner focus:outline-gold text-sm hover:border-gray-500" type="text" />
-        <div className="relative w-1/2">
-          <input className="w-full border border-gray-300 py-2 p-1 rounded-r-md shadow-inner focus:outline-gold text-sm hover:border-gray-500" type="text" />
-          <div className="absolute h-full cursor-pointer right-0 top-0 rounded-r-md bg-gold w-1/5 flex items-center justify-center">
-            <CiSearch className="text-white text-2xl"/>
-          </div>
-        </div>
+      <div className="relative flex flex-row items-center justify-center w-xl mx-5">
+        <input className="w-64 border border-gray-300 py-2 p-1 rounded-l-md shadow-inner focus:outline-gold text-sm hover:border-gray-500" type="text" />
+        <Autocomplete setSelectedLocation={setLocation} setCoordinates={setCoordinates}
+          inputClassName={"relative w-64 border border-gray-300 py-2 p-1 rounded-r-md shadow-inner focus:outline-gold text-sm hover:border-gray-500 pr-14"} showIcon/>
       </div>
 
       { !user?.emailVerified &&
@@ -57,21 +85,9 @@ function Header( { user } ) {
       }
 
       { user?.emailVerified &&
-        <div className='absolute h-full right-0 flex flex-row items-center justify-end'>
-          <div className="flex flex-col justify-center items-center mx-2 hover:text-gold cursor-pointer h-full" >
-            <button className="cursor-pointer">
-              <IoChatbubbleOutline className="text-2xl"/>
-            </button>
-            <div className="text-xs">Messages</div>
-          </div>
-          <div className="flex flex-col justify-center items-center hover:text-gold cursor-pointer mx-2">
-            <button className="cursor-pointer">
-              <LiaUserFriendsSolid className="text-2xl"/>
-            </button>
-            <div className="text-xs">Connections</div>
-          </div>
-          <button className="hover:text-gold ml-2 text-3xl cursor-pointer font-normal mr-4" onClick={handleProfile} ref={profile}>
-            <CgProfile />
+        <div className='absolute h-full right-0 flex items-center justify-end'>
+          <button className="hover:text-gold ml-2 text-3xl cursor-pointer font-normal mr-8" onClick={handleProfile} ref={profile}>
+            {imgUrl && <img src={imgUrl} alt="Profile" className="size-16 rounded-full"/>}
           </button>
         </div>
       }

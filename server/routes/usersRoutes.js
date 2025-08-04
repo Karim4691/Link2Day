@@ -21,8 +21,11 @@ router.post('/create', getTimeZoneData, async (req, res) => {
       _id: user.uid,
       name: displayName,
       email: email,
-      location: location,
-      coordinates: coordinates, 
+      locationName: location,
+      location : { //geoJSON point
+        type: "Point",
+        coordinates: [coordinates.lng, coordinates.lat],
+      }, 
       bio : "Hey there! I'm new to Link2Day. Feel free to reach out if you want to connect.", 
       timeZoneId: timeZoneId,
       photoUrl : `/images/profile/${user.uid}`,

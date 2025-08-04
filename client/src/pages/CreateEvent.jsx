@@ -24,7 +24,7 @@ export default function CreateEvent({ user }) {
   const [toDate, setToDate] = useState(null) //last day of event
   const [toTime, setToTime] = useState("00:00")
   const navigate = useNavigate()
-  if (!user?.emailVerified) navigate('/Home')
+  if (!user?.emailVerified) navigate('/home')
   //Load default image
   useEffect(() => {
     const loadDefaultImage = async () => {

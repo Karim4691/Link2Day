@@ -82,8 +82,11 @@ function Profile( { user }) {
       const updates = {} //updates to implement
       if (name !== userData.name) updates.name=name
       if (coordinates.lat !== null) {
-        updates.location = location
-        updates.coordinates = coordinates
+        updates.locationName = location
+        updates.location = {
+          type: "Point",
+          coordinates: [coordinates.lng, coordinates.lat],
+        }
       }
       if (bio !== userData.bio) updates.bio = bio
       setIsLoading(true)
@@ -141,7 +144,7 @@ function Profile( { user }) {
   if (isLoading) return <Loading />
   return (
     <div>
-      <Header user={user}/>
+      <Header user={user} profileImgUrl={imageUrl}/>
 
       {user?.uid === uid && <Modal open={showModal} onClose={() => setShowModal(false)}>
         <ul>

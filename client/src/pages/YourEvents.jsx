@@ -3,6 +3,7 @@ import { FaPlus } from "react-icons/fa"
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
+import EventSkeleton from '../components/EventSkeleton.jsx'
 
 function YourEvents({ user }) {
   const [selectedOpt, setSelectedOpt] = useState("hosting")
@@ -14,7 +15,7 @@ function YourEvents({ user }) {
 
   const navigate = useNavigate()
 
-  if (!user?.emailVerified) navigate('/Home')
+  if (!user?.emailVerified) navigate('/home')
 
 
   return (
@@ -46,7 +47,10 @@ function YourEvents({ user }) {
               <p className='p-1'>Create an event</p>
             </button>
           </div>
-          <div className='h-full p-2 mt-10 ml-4 pl-20'>O</div>
+
+          <div className='h-full p-2 mt-10 ml-6'>
+            <EventSkeleton nb_cards={4} />
+          </div>
         </div>
       </div>
     </div>

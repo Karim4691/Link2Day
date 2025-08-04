@@ -14,7 +14,9 @@ import Event from "./pages/Event.jsx"
 import './assets/calendar_theme.css'
 import 'primereact/resources/primereact.min.css'
 import 'primeicons/primeicons.css'
-import 'react-time-picker/dist/TimePicker.css'
+import './assets/TimePicker.css'
+import './assets/skeleton.css'
+
 
 
 function App() {

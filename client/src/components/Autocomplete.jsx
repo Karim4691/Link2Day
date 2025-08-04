@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
 import ErrorHandler from '../utils/errorHandler.js'
+import { CiSearch } from "react-icons/ci"
 
-function Autocomplete( { setSelectedLocation, setCoordinates, placeholder, onErrorFailToResetSelected, inputClass } ) {
+function Autocomplete( { setSelectedLocation, setCoordinates, placeholder, onErrorFailToResetSelected, inputClassName, showIcon } ) {
   const [location, setLocation] = useState('') //Used to store the user's input (*and not the selection*)
 
   const onError = (status, clearSuggestions) => {
@@ -41,9 +42,14 @@ function Autocomplete( { setSelectedLocation, setCoordinates, placeholder, onErr
       {({ getInputProps, suggestions, getSuggestionItemProps }) => (
         <div className='relative'>
           <input {...getInputProps({
-            className: inputClass || 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full',
+            className: inputClassName || 'border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full',
             placeholder : placeholder || ""
           })} />
+          {showIcon &&
+            <div className="absolute h-full cursor-pointer right-0 top-0 rounded-r-md bg-gold w-1/5 flex items-center justify-center">
+              <CiSearch className="text-white text-2xl"/>
+            </div>
+          }
 
           <div className='bg-gray-100 rounded-md my-1 z-50 absolute w-full overflow-y-auto'>
             {suggestions.map((suggestion, index) => {

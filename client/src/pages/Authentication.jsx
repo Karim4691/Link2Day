@@ -3,14 +3,13 @@ import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/aut
 import { auth } from '../firebase.js'
 import Autocomplete from '../components/Autocomplete.jsx'
 import errorHandler from '../utils/errorHandler.js'
-import SpinLoader from '../components/SpinLoader.jsx'
 import { verifyName, verifyEmail, verifyLocation, verifyPassword } from '../utils/validators.js'
 import toast from 'react-hot-toast'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Modal from '../components/Modal.jsx'
 import EmailVerification from '../components/EmailVerification.jsx'
 import { storage } from '../firebase.js'
-import { ref, uploadBytes, getBytes } from 'firebase/storage'
+import { ref, uploadBytes } from 'firebase/storage'
 
 function Authentication({ user }) {
   const [searchParams] = useSearchParams()
@@ -198,7 +197,7 @@ function Authentication({ user }) {
           <button className='relative bg-black text-white rounded-md my-6 py-2 text-lg cursor-pointer hover:opacity-80' type='button' onClick={handleSignUp}>
             { isLoading &&
             <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
-              <SpinLoader />
+              <img src='/spin.svg' className="w-6"/>
             </div>
             }
             Sign up
@@ -215,7 +214,7 @@ function Authentication({ user }) {
           <button className='relative bg-black text-white rounded-md my-6 py-2 text-lg cursor-pointer hover:opacity-80' type='button' onClick={handleSignIn}>
             { isLoading &&
             <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
-              <SpinLoader />
+              <img src='/spin.svg' className="w-6"/>
             </div>
             }
             Sign in
