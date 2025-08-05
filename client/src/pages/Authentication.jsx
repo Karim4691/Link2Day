@@ -66,8 +66,11 @@ function Authentication({ user }) {
           displayName: name,
           email: email,
           password: password,
-          location: selectedLocation,
-          coordinates: coordinates,
+          locationName: selectedLocation,
+          location: {
+            type: "Point",
+            coordinates: [coordinates.lng, coordinates.lat]
+          }
         })
       })
 

@@ -3,7 +3,7 @@ import { sendEmailVerification } from 'firebase/auth'
 import errorHandler from "../utils/errorHandler"
 
 export default function EmailVerification ({ user }) {
-  const [cooldown, setCooldown] = useState(0)
+  const [cooldown, setCooldown] = useState(60)
 
   useEffect(() => {
     if (cooldown === 0) return

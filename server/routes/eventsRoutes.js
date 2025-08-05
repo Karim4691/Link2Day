@@ -4,29 +4,44 @@ import db from '../mongodb.js'
 import auth from '../firebase.js'
 import getTimeZoneData from '../middlewares/getTimeZoneData.js'
 import { ObjectId } from 'mongodb'
+import { DateTime } from 'luxon'
 
 const router = express.Router()
 const users = db.collection('users')
 const events = db.collection('events')
 
 router.post('/create', validateTokenID, getTimeZoneData, async (req, res) => {
-  const { title, details, location, coordinates, eventStart, eventEnd, timeZoneId } = req.body
+  const { title, details, locationName, location, eventStartISO, eventEndISO, timeZoneId } = req.body
   const uid = req.uid
 
+
   try {
+    //convert iso formatted dates to utc timestamp with respect to the event's timezone
+    console.log(eventStartISO)
+    const start_date = DateTime.fromISO(eventStartISO, { zone: timeZoneId })
+    console.log(start_date)
+    const eventStart = start_date.toUTC().toMillis()
+    const end_date = DateTime.fromISO(eventEndISO, { zone: timeZoneId })
+    const eventEnd = end_date.toUTC().toMillis()
+
+    //get host name
+    const user = await users.findOne({ _id: uid })
+    if (!user) {
+      return res.status(404).json({ message: "User not found", code: 'user/not-found' })
+    }
+    const hostName = user.name
+
     const _id = new ObjectId()
     const event = {
       _id,
       title,
       details,
-      locationName: location,
-      location : { //geoJSON point
-        type: "Point",
-        coordinates: [coordinates.lng, coordinates.lat],
-      },
+      locationName,
+      location,
       eventStart,
       eventEnd,
       hostedBy: uid,
+      hostName,
       timeZoneId: timeZoneId,
       photoUrl: `images/events/${uid}/${_id}`,
       attendees: [],
@@ -55,7 +70,7 @@ router.get('/:eventId', async (req, res) => {
     }
     res.status(200).json(event)
   } catch (error) {
-    console.error("Error fetching event:", error)
+    console.error(error)
     res.status(500).json({ message: "Failed to fetch event", code: error.code })
   }
 })

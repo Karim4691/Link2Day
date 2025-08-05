@@ -7,7 +7,7 @@ import { ref, getDownloadURL } from 'firebase/storage'
 import { storage } from '../firebase.js'
 import { IoLocationSharp } from "react-icons/io5"
 import { GoClock } from "react-icons/go"
-import { getTimeZoneName, utcTimestampToLocal } from '../utils/utcTimestampConversion.js'
+import { utcTimestampToLocal } from '../utils/utcTimestampConversion.js'
 
 export default function Event ( { user } ) {
   const { eid } = useParams()
@@ -74,14 +74,14 @@ export default function Event ( { user } ) {
         </div>
 
         <div className='flex flex-col w-1/3 h-full items-center'>
-          <div className='bg-white w-96 h-48 rounded-lg flex flex-col p-4 mt-20 justify-evenly'>
+          <div className='bg-white w-96 h-48 rounded-lg flex flex-col p-4 mt-20 justify-evenly pb-4'>
             <div className='flex flex-row justify-start items-center'>
-              <IoLocationSharp className='size-8 text-gray-300 mr-2' />
+              <IoLocationSharp className='size-8 text-gray-300 mr-2 shrink-0' />
               <span className='text-lg'>{event.locationName}</span>
             </div>
             <div className='flex flex-row justify-start mt-2 items-center'>
-              <GoClock className='size-8 text-gray-300 mr-2' />
-              <span className='text-lg'>{utcTimestampToLocal(event.eventStart, event.timeZoneID)} {" "} {getTimeZoneName(event.eventStart, event.timeZoneID)} - <br />{utcTimestampToLocal(event.eventEnd, event.timeZoneID)} {" "} {getTimeZoneName(event.eventEnd, event.timeZoneID)}</span>
+              <GoClock className='size-8 text-gray-300 mr-2 shrink-0' />
+              <span className='text-lg'>{utcTimestampToLocal(event.eventStart, event.timeZoneId)} {" "} - <br />{utcTimestampToLocal(event.eventEnd, event.timeZoneId)} {" "} </span>
             </div>
           </div>
         </div>

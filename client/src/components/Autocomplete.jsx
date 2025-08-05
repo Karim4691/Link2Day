@@ -13,8 +13,7 @@ function Autocomplete( { setSelectedLocation, setCoordinates, placeholder, onErr
 
   const handleSelect = async (selected) => {
     try {
-      const addr_array = location.split(',')
-      if (addr_array.length === 1) {
+      if (location.split(',').length === 1 && location.split('-').length === 1) { //UAE and other uses dashes instead of commas
         const error = new Error("Must specify city or state")
         error.code = "auth/missing-city-or-state"
         throw error

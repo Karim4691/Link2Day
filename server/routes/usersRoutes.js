@@ -9,7 +9,7 @@ const router = express.Router()
 const users = db.collection('users')
 
 router.post('/create', getTimeZoneData, async (req, res) => {
-  var { displayName, email, password, location, coordinates, timeZoneId } = req.body
+  var { displayName, email, password, locationName, location, timeZoneId } = req.body
   try {
     const user = await auth.createUser({
       email: email,
@@ -21,11 +21,8 @@ router.post('/create', getTimeZoneData, async (req, res) => {
       _id: user.uid,
       name: displayName,
       email: email,
-      locationName: location,
-      location : { //geoJSON point
-        type: "Point",
-        coordinates: [coordinates.lng, coordinates.lat],
-      }, 
+      locationName,
+      location, 
       bio : "Hey there! I'm new to Link2Day. Feel free to reach out if you want to connect.", 
       timeZoneId: timeZoneId,
       photoUrl : `/images/profile/${user.uid}`,
@@ -56,11 +53,12 @@ router.get('/:uid', (req, res) => {
     }
     res.status(200).json({
       name: user.name,
-      location: user.location,
+      locationName: user.locationName,
       bio: user.bio,
       photoUrl: user.photoUrl,
       eventsHosted: user.eventsHosted.length,
       eventsJoined: user.eventsJoined.length,
+      timeZoneId: user.timeZoneId,
     })
   })
   .catch((error) => {

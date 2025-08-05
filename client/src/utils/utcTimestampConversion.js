@@ -6,20 +6,11 @@ export function utcTimestampToLocal(utcTimestamp, timeZoneId) {
   const utcDate = new Date(utcTimestamp)
   return new Intl.DateTimeFormat('en-US', {
     timeZone: timeZoneId,
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(utcDate)
-}
-
-export function getTimeZoneName(utcTimestamp, timeZoneId) {
-  const date = new Date(utcTimestamp)
-
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: timeZoneId,
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
     timeZoneName: 'short',
-  })
-
-  const parts = formatter.formatToParts(date)
-  const tzPart = parts.find(part => part.type === 'timeZoneName')
-  return tzPart.value
+  }).format(utcDate)
 }

@@ -51,7 +51,7 @@ function Profile( { user }) {
   useEffect(() => { //set user data as placeholders for profile editing
     if (user?.uid === uid && userData && !showModal) {
       setName(userData.name)
-      setLocation(userData.location)
+      setLocation(userData.locationName)
       setCoordinates({ lat : null, lng : null }) //reset to original state
       setBio(userData.bio)
       setRefreshKey((prev) => prev+1) //reset autocomplete component
@@ -89,7 +89,6 @@ function Profile( { user }) {
         }
       }
       if (bio !== userData.bio) updates.bio = bio
-      setIsLoading(true)
       const idToken = await user.getIdToken()
       var res = await fetch(`/api/users/update-profile`, {
         method : 'PATCH',
@@ -108,7 +107,7 @@ function Profile( { user }) {
       setUserData((data) => ({
         ...data,
         name: name,
-        location: location,
+        locationName: location,
         bio: bio
       }))
       setShowModal(false)
@@ -116,8 +115,6 @@ function Profile( { user }) {
     catch(error) {
       console.log(error)
       errorHandler(error.code)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -192,12 +189,12 @@ function Profile( { user }) {
               {userData.name}
             </div>
             <div className='flex flex-row items-center mb-4 text-lg'>
-              <IoLocationSharp className='text-gold w-6 mx-1'/>
-              {userData.location}
+              <IoLocationSharp className='text-gold size-6 mx-1 shrink-0'/>
+              {userData.locationName}
             </div>
             { user?.uid === uid &&
               <button className='flex flex-row items-center justify-center  cursor-pointer text-cyan h-fit w-fit text-lg' onClick={() => setShowModal(true)}>
-                <AiFillEdit className='w-6 mx-1 text-cyan'/>
+                <AiFillEdit className='size-6 mx-1 text-cyan shrink-0'/>
                 Edit Profile
               </button>
             }

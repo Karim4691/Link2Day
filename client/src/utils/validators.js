@@ -27,8 +27,9 @@ export function verifyTitle(title) {
   return title.trim().length > 0 && title.length <= 200
 }
 
-export function verifyAndSetEventTime(fromDate, fromTime, toDate, toTime) {
-  if (!toDate || !toTime || !fromDate || !fromTime) return [null, null]
+export function verifyEventTime(fromDate, fromTime, toDate, toTime) {
+  if (!toDate || !toTime || !fromDate || !fromTime) return false
+
   const startDateTime = new Date(fromDate)
   const [fromHours, fromMinutes] = fromTime.split(":").map(Number)
   startDateTime.setHours(fromHours, fromMinutes)
@@ -36,9 +37,9 @@ export function verifyAndSetEventTime(fromDate, fromTime, toDate, toTime) {
   const [toHours, toMinutes] = toTime.split(":").map(Number)
   endDateTime.setHours(toHours, toMinutes)
   if (startDateTime > new Date() && endDateTime > startDateTime) {
-    return [startDateTime.getTime(), endDateTime.getTime()]
+    return true
   }
-  return [null, null]
+  return false
 }
 
 export function verifyDetails(details) {

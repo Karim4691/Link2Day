@@ -2,9 +2,9 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Header from "../components/Header"
 import { storage } from "../firebase.js"
-import { ref, uploadBytes, getDownloadURL, getBytes, getBlob } from "firebase/storage"
+import { ref, uploadBytes } from "firebase/storage"
 import errorHandler from "../utils/errorHandler"
-import { verifyFileSize, verifyAndSetEventTime, verifyTitle, verifyLocation, verifyDetails } from "../utils/validators.js"
+import { verifyFileSize, verifyEventTime, verifyTitle, verifyLocation, verifyDetails } from "../utils/validators.js"
 import Autocomplete from "../components/Autocomplete.jsx"
 import { Calendar } from 'primereact/calendar'
 import TimePicker from 'react-time-picker'
@@ -37,6 +37,10 @@ export default function CreateEvent({ user }) {
     loadDefaultImage()
   }, [])
 
+  const pad = n => String(n).padStart(2, '0') //helper function to pad numbers with leading zeros (YYYY-MM-DD format)
+
+  if (fromDate) console.log(`${fromDate.getFullYear()}-${pad(fromDate.getMonth() + 1)}-${pad(fromDate.getDate())}T${fromTime}`)
+
   const handleImageUpload = async (file) => {
     try {
       if (!file) return
@@ -60,8 +64,7 @@ export default function CreateEvent({ user }) {
         errorHandler('auth/invalid-location')
         return
       }
-      const [eventStart, eventEnd] = verifyAndSetEventTime(fromDate, fromTime, toDate, toTime)
-      if (!eventStart || !eventEnd) {
+      if (!verifyEventTime(fromDate, fromTime, toDate, toTime)) {
         errorHandler('event/invalid-time')
         return
       }
@@ -69,6 +72,9 @@ export default function CreateEvent({ user }) {
         errorHandler('event/invalid-details')
         return
       }
+
+      const eventStartISO = `${fromDate.getFullYear()}-${pad(fromDate.getMonth() + 1)}-${pad(fromDate.getDate())}T${fromTime}`
+      const eventEndISO = `${toDate.getFullYear()}-${pad(toDate.getMonth() + 1)}-${pad(toDate.getDate())}T${toTime}`
 
       var res = await fetch('/api/events/create', {
         method: 'POST',
@@ -79,10 +85,13 @@ export default function CreateEvent({ user }) {
         body: JSON.stringify({
           title,
           details,
-          location,
-          coordinates,
-          eventStart,
-          eventEnd,
+          locationName: location,
+          location: {
+            type: "Point",
+            coordinates: [coordinates.lng, coordinates.lat],
+          },
+          eventStartISO,
+          eventEndISO,
         })
       })
 
@@ -160,7 +169,7 @@ export default function CreateEvent({ user }) {
                   </div>
                   <div className="flex flex-col w-1/2 ml-3">
                     <label className="text-2xl font-bold mb-1">To</label>
-                    <Calendar value={toDate} onChange={(e) => setToDate(e.value)} showIcon dateFormat="dd/mm/yy" readOnlyInput hideOnDateTimeSelect/>
+                    <Calendar value={toDate} onChange={(e) => setToDate(e.target.value)} showIcon dateFormat="dd/mm/yy" readOnlyInput hideOnDateTimeSelect/>
                     <div className="flex justify-center items-center">
                       <TimePicker
                         onChange={setToTime}
