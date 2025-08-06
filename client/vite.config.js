@@ -5,7 +5,6 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   server: {
-    // hmr: false,
     watch: {
       usePolling: true,
     },

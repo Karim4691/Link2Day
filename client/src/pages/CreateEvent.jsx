@@ -23,8 +23,11 @@ export default function CreateEvent({ user }) {
   const [fromTime, setFromTime] = useState("00:00")
   const [toDate, setToDate] = useState(null) //last day of event
   const [toTime, setToTime] = useState("00:00")
+
+  // redirect if user is not properly authenticated
   const navigate = useNavigate()
   if (!user?.emailVerified) navigate('/home')
+
   //Load default image
   useEffect(() => {
     const loadDefaultImage = async () => {
@@ -193,7 +196,7 @@ export default function CreateEvent({ user }) {
 
           <div className="flex items-center justify-center w-full">
             <button type="button" className="bg-gradient-to-r from-cyan to-gold text-white m-4 px-4 py-2  rounded-lg text-lg cursor-pointer hover:opacity-90" onClick={handleCreateEvent}>
-              Create event
+              Create Event
             </button>
           </div>
         </form>

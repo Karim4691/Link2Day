@@ -136,8 +136,6 @@ function Profile( { user }) {
 
   }
 
-  const navigate = useNavigate()
-  if (!user?.emailVerified) navigate("/home") // Redirect if email is not verified
   if (isLoading) return <Loading />
   return (
     <div>
@@ -153,7 +151,7 @@ function Profile( { user }) {
           <li className='mt-2'>
             <label className='text-lg p-1'>Location</label>
             <br />
-            <Autocomplete key={refreshKey} setSelectedLocation={setLocation} setCoordinates={setCoordinates} placeholder={location} onErrorFailToResetSelected={true}/>
+            <Autocomplete key={refreshKey} selectedLocation={location} setSelectedLocation={setLocation} setCoordinates={setCoordinates} onErrorFailToResetSelected={true}/>
           </li>
           <li className='mt-2'>
             <label className='text-lg p-1'>Biography</label>

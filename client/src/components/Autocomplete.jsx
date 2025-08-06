@@ -1,10 +1,25 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
 import ErrorHandler from '../utils/errorHandler.js'
 import { CiSearch } from "react-icons/ci"
 
-function Autocomplete( { setSelectedLocation, setCoordinates, placeholder, onErrorFailToResetSelected, inputClassName, showIcon } ) {
-  const [location, setLocation] = useState('') //Used to store the user's input (*and not the selection*)
+/*
+@param {string} selectedLocation - The currently selected location
+@param {function} setSelectedLocation - Function to update the selected location
+@param {function} setCoordinates - Function to update the coordinates
+@param {string} placeholder - Placeholder text for the input
+@param {boolean} onErrorFailToResetSelected - Whether to reset the selected location on an error, this is used when updating the user profile
+@param {string} inputClassName - Custom class name for the input
+@param {boolean} showIcon - Whether to show the search icon
+*/
+function Autocomplete( { selectedLocation, setSelectedLocation, setCoordinates, placeholder, onErrorFailToResetSelected, inputClassName, showIcon } ) {
+  const [location, setLocation] = useState('') //Used to store the user's input (and not the selection, this avoids a mismatch between the coordinates and the selected location)
+
+  useEffect(() => {
+    if (selectedLocation) {
+      setLocation(selectedLocation)
+    }
+  }, [selectedLocation])
 
   const onError = (status, clearSuggestions) => {
     console.log('Google Maps API returned error with status: ', status)

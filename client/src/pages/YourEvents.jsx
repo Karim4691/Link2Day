@@ -44,7 +44,7 @@ function YourEvents({ user }) {
             <h2 className='text-5xl font-bold p-2 mt-12 ml-6 font-tinos'> Your Events </h2>
             <button type='button' className='flex flex-row items-center justify-center p-2 cursor-pointer text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80' onClick={() => navigate("/your-events/create")}>
               <FaPlus className='p-1 size-6' />
-              <p className='p-1'>Create an event</p>
+              <p className='p-1'>Create An Event</p>
             </button>
           </div>
 
