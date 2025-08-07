@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
 import errorHandler from '../utils/errorHandler'
@@ -16,7 +16,7 @@ function Profile( { user }) {
   const { uid } = useParams()
   const [userData, setUserData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [imageUrl, setImageUrl] = useState(null) //profile image url
+  const [profileImgUrl, setProfileImgUrl] = useState(null) //profile image url
   const [file, setFile] = useState(null) //profile image
   const [showModal, setShowModal] = useState(false)
   const [name, setName] = useState("")
@@ -37,7 +37,7 @@ function Profile( { user }) {
         setUserData(data)
         const imageRef = ref(storage, `${data.photoUrl}`)
         const url = await getDownloadURL(imageRef) //get profile image url
-        setImageUrl(url)
+        setProfileImgUrl(url)
       } catch (error) {
         errorHandler(error.code)
         console.log(error)
@@ -62,7 +62,7 @@ function Profile( { user }) {
     if (!file) return
 
     const objectUrl = URL.createObjectURL(file)
-    setImageUrl(objectUrl)
+    setProfileImgUrl(objectUrl)
 
     return () => URL.revokeObjectURL(objectUrl)
   }, [file])
@@ -138,8 +138,8 @@ function Profile( { user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div>
-      <Header user={user} profileImgUrl={imageUrl}/>
+    <>
+      { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
 
       {user?.uid === uid && <Modal open={showModal} onClose={() => setShowModal(false)}>
         <ul>
@@ -169,7 +169,7 @@ function Profile( { user }) {
 
       <div className='bg-gray-100 h-screen pt-20 pl-20 w-screen flex flex-row'>
         <div className='flex flex-col items-center w-1/4'>
-          <img src={imageUrl} className='rounded-full w-48 h-48'/>
+          <img src={profileImgUrl} className='rounded-full w-48 h-48'/>
           {user?.uid === uid &&
           <label>
             <input className='hidden' type='file' accept='image/*'
@@ -233,7 +233,7 @@ function Profile( { user }) {
 
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -12,7 +12,7 @@ import { CiSearch } from "react-icons/ci"
 @param {string} inputClassName - Custom class name for the input
 @param {boolean} showIcon - Whether to show the search icon
 */
-function Autocomplete( { selectedLocation, setSelectedLocation, setCoordinates, placeholder, onErrorFailToResetSelected, inputClassName, showIcon } ) {
+function Autocomplete( { selectedLocation, setSelectedLocation, setCoordinates, placeholder, onErrorFailToResetSelected, inputClassName, showIcon, onIconClick } ) {
   const [location, setLocation] = useState('') //Used to store the user's input (and not the selection, this avoids a mismatch between the coordinates and the selected location)
 
   useEffect(() => {
@@ -60,9 +60,9 @@ function Autocomplete( { selectedLocation, setSelectedLocation, setCoordinates, 
             placeholder : placeholder || ""
           })} />
           {showIcon &&
-            <div className="absolute h-full cursor-pointer right-0 top-0 rounded-r-md bg-gold w-1/5 flex items-center justify-center">
+            <button type='button' className="absolute h-full cursor-pointer right-0 top-0 rounded-r-md bg-gold w-1/5 flex items-center justify-center" onClick={onIconClick}>
               <CiSearch className="text-white text-2xl"/>
-            </div>
+            </button>
           }
 
           <div className='bg-gray-100 rounded-md my-1 z-50 absolute w-full overflow-y-auto'>

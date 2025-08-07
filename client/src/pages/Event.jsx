@@ -15,6 +15,7 @@ export default function Event ( { user } ) {
   const [hostData, setHostData] = useState(null)
   const [eventImgURL, setEventImgURL] = useState(null)
   const [hostImgURL, setHostImgURL] = useState(null)
+  const [profileImgUrl, setProfileImgUrl] = useState(null) //current user's profile image url
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -37,6 +38,13 @@ export default function Event ( { user } ) {
         const hostImgRef = ref(storage, data.photoUrl)
         const hostImgUrl = await getDownloadURL(hostImgRef)
         setHostImgURL(hostImgUrl)
+
+        //fetch current user's profile image url if logged in
+        if (user) {
+          const userImgRef = ref(storage, `images/profile/${user.uid}`)
+          const userImgUrl = await getDownloadURL(userImgRef)
+          setProfileImgUrl(userImgUrl)
+        }
       } catch (error) {
         console.error(error)
         errorHandler(error.code)
@@ -50,7 +58,7 @@ export default function Event ( { user } ) {
   if (isLoading) return <Loading />
   return (
     <>
-      <Header user={user} />
+      { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
       <h2 className='w-screen h-48 pl-4 py-4 flex flex-col justify-center items-start p-2 border-b-2 border-gray-300'>
         <div className='mb-4 text-5xl font-tinos h-1/2'>{event.title}</div>
         <div className='flex flex-row h-1/2 items-center'>

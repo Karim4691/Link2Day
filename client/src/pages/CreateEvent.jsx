@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Header from "../components/Header"
 import { storage } from "../firebase.js"
-import { ref, uploadBytes } from "firebase/storage"
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import errorHandler from "../utils/errorHandler"
 import { verifyFileSize, verifyEventTime, verifyTitle, verifyLocation, verifyDetails } from "../utils/validators.js"
 import Autocomplete from "../components/Autocomplete.jsx"
@@ -23,6 +23,7 @@ export default function CreateEvent({ user }) {
   const [fromTime, setFromTime] = useState("00:00")
   const [toDate, setToDate] = useState(null) //last day of event
   const [toTime, setToTime] = useState("00:00")
+  const [profileImgUrl, setProfileImgUrl] = useState(null) //current user's profile image url
 
   // redirect if user is not properly authenticated
   const navigate = useNavigate()
@@ -31,18 +32,30 @@ export default function CreateEvent({ user }) {
   //Load default image
   useEffect(() => {
     const loadDefaultImage = async () => {
-      const fetchDefaultImage = await fetch('/sunset.jpg')
-      const defaultImage = await fetchDefaultImage.blob()
-      setImageFile(defaultImage)
-      setImgURL(URL.createObjectURL(defaultImage))
-      setIsLoading(false)
+      try {
+        if (user) {
+          const userImgRef = ref(storage, `images/profile/${user.uid}`)
+          const userImgUrl = await getDownloadURL(userImgRef)
+          setProfileImgUrl(userImgUrl)
+        }
+
+        const fetchDefaultImage = await fetch('/sunset.jpg')
+        const defaultImage = await fetchDefaultImage.blob()
+        setImageFile(defaultImage)
+        setImgURL(URL.createObjectURL(defaultImage))
+        setIsLoading(false)
+
+        //get current user's profile image url if logged in
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setIsLoading(false)
+      }
     }
     loadDefaultImage()
-  }, [])
+  }, [user])
 
   const pad = n => String(n).padStart(2, '0') //helper function to pad numbers with leading zeros (YYYY-MM-DD format)
-
-  if (fromDate) console.log(`${fromDate.getFullYear()}-${pad(fromDate.getMonth() + 1)}-${pad(fromDate.getDate())}T${fromTime}`)
 
   const handleImageUpload = async (file) => {
     try {
@@ -118,13 +131,10 @@ export default function CreateEvent({ user }) {
     }
   }
 
-  if (isLoading) return (
-    <Loading />
-  )
-
+  if (isLoading) return <Loading />
   return (
     <>
-      <Header user={user} />
+      { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
       <div className="flex flex-row w-screen h-screen">
         <div className="flex flex-col w-md items-center mt-20 p-4 px-10">
           <img src={imgURL} className='rounded-xl w-72 h-72'/>

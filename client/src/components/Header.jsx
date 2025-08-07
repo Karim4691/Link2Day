@@ -3,14 +3,9 @@ import { auth } from "../firebase"
 import { signOut } from "firebase/auth"
 import { useNavigate } from "react-router-dom"
 import { useEffect } from "react"
-import { getDownloadURL, ref } from "firebase/storage"
-import { storage } from "../firebase.js"
-import Loading from "./Loading.jsx"
 
 function Header( { user, profileImgUrl } ) {
   const [selectProfile, setSelectProfile] = useState(false)
-  const [imgUrl, setImgUrl] = useState(profileImgUrl) // user's profile image url
-  const [isLoading, setIsLoading] = useState(false) // loading state for profile image
 
   const navigate = useNavigate()
   const dropdown = useRef(null)
@@ -33,31 +28,6 @@ function Header( { user, profileImgUrl } ) {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  useEffect(() => {
-    setIsLoading(true)
-    async function fetchProfileImage() {
-      try {
-        if (user?.emailVerified) {
-          const imgRef = ref(storage, `images/profile/${user.uid}`)
-          setImgUrl(await getDownloadURL(imgRef))
-        }
-      } catch (error) {
-        console.log(error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchProfileImage()
-  }, [user])
-
-  useEffect(() => {
-    if (profileImgUrl) {
-      setImgUrl(profileImgUrl)
-    }
-  }, [profileImgUrl])
-
-  if (isLoading) return <Loading />
-
   return (
     <div className="relative mt-4 px-10 py-3 flex flex-row justify-start sm:justify-center items-center border-b border-gray-300 w-screen h-24">
       <div className="font-sacramento text-gold text-5xl cursor-pointer mr-5" onClick={() => navigate('/home')}>
@@ -74,7 +44,7 @@ function Header( { user, profileImgUrl } ) {
       { user?.emailVerified &&
         <div className='absolute h-full right-0 flex items-center justify-end'>
           <button className="hover:text-gold ml-2 text-3xl cursor-pointer font-normal mr-8" onClick={() => setSelectProfile(!selectProfile)} ref={profile}>
-            {imgUrl && <img src={imgUrl} alt="Profile" className="size-16 rounded-full"/>}
+            <img src={profileImgUrl} alt="Profile" className="size-16 rounded-full"/>
           </button>
         </div>
       }

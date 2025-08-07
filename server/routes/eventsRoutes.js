@@ -61,6 +61,69 @@ router.post('/create', validateTokenID, getTimeZoneData, async (req, res) => {
   }
 })
 
+router.get('/find', async (req, res) => { 
+  try {
+    const { lng, lat, maxDistance, searchEvents } = req.query
+    var eventsQuery = {
+      $search: {
+        compound: {
+          must: []
+        }
+      }
+    }
+    if (lng && lng!== 'null') {
+      const geoQuery = {}
+      geoQuery.geoWithin = {
+        path: "location",
+        circle: {
+          center : {
+            type : "Point" ,
+            coordinates : [ parseFloat(lng), parseFloat(lat) ]
+          }
+        }
+      }
+
+      if (maxDistance) geoQuery.geoWithin.circle.radius = parseInt(maxDistance) * 1000 // convert km to meters
+      
+      eventsQuery.$search.compound.must.push(geoQuery)
+    }
+
+    if (searchEvents) {
+      eventsQuery.$search.compound.must.push({
+        compound: {
+          should: [
+            {
+              autocomplete: {
+                query: searchEvents,
+                path: 'title',
+                tokenOrder: "any"
+              }
+            },
+            {
+              autocomplete: {
+                query: searchEvents,
+                path: 'details',
+                tokenOrder: "any"
+              }
+            }
+          ]
+        }
+      })
+    }
+
+    var eventsMatched
+    if(eventsQuery.$search.compound.must.length > 0) eventsMatched = await events.aggregate([eventsQuery, {
+      $match: { eventEnd: { $gt: Date.now() } } // only show events that haven't ended yet
+    }]).sort({ eventStart: 1 }).toArray()
+    else eventsMatched = await events.find({ eventEnd: { $gt: Date.now() } }).sort({ eventStart: 1 }).toArray()
+
+    res.status(200).json(eventsMatched)
+  } catch (error) {
+    console.error("Error fetching events:", error)
+    res.status(500).json({ message: "Failed to fetch events", code: error.code })
+  }
+})
+
 router.get('/:eventId', async (req, res) => {
   const { eventId } = req.params
   try {
@@ -72,6 +135,40 @@ router.get('/:eventId', async (req, res) => {
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: "Failed to fetch event", code: error.code })
+  }
+})
+
+router.get('/hosting/:uid', async (req, res) => {
+  const { uid } = req.params
+  try {
+    const eventsHosting = await events.find({ hostedBy: uid, eventEnd: { $gt: Date.now() } }).sort({ eventStart: 1 }).toArray()
+    res.status(200).json(eventsHosting)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: "Failed to fetch hosted events", code: error.code })
+  }
+})
+
+router.get('/attending/:uid', async (req, res) => {
+  const { uid } = req.params
+  try {
+    const attendingEvents = await events.find({ attendees: { $in: [uid] }, eventEnd: { $gt: Date.now() } }).sort({ eventStart: 1 }).toArray()
+    res.status(200).json(attendingEvents)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: "Failed to fetch attending events", code: error.code })
+  }
+})
+
+router.get('/past/:uid', async (req, res) => {
+  const { uid } = req.params
+  try {
+    const pastEvents = await events.find({ eventEnd: { $lt: Date.now() }, 
+    $or: [ { hostedBy: uid }, { attendees: { $in: [uid] } } ] }).sort({ eventStart: -1 }).toArray()
+    res.status(200).json(pastEvents)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: "Failed to fetch past events", code: error.code })
   }
 })
 

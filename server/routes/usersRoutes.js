@@ -54,6 +54,7 @@ router.get('/:uid', (req, res) => {
     res.status(200).json({
       name: user.name,
       locationName: user.locationName,
+      coordinates: user.location.coordinates,
       bio: user.bio,
       photoUrl: user.photoUrl,
       eventsHosted: user.eventsHosted.length,

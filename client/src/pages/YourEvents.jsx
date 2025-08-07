@@ -4,23 +4,69 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 import EventSkeleton from '../components/EventSkeleton.jsx'
+import { getDownloadURL, ref } from 'firebase/storage'
+import { storage } from '../firebase.js'
+import Loading from '../components/Loading.jsx'
+import EventCard from '../components/EventCard.jsx'
 
 function YourEvents({ user }) {
   const [selectedOpt, setSelectedOpt] = useState("hosting")
-  const [showModal, setShowModal] = useState(false)
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [location, setLocation] = useState("")
-  const [coordinates, setCoordinates] = useState({ lat: null, lng: null })
+  const [profileImgUrl, setProfileImgUrl] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [eventsLoading, setEventsLoading] = useState(true)
+  const [events, setEvents] = useState([])
 
   const navigate = useNavigate()
 
+  useEffect(() => {
+    async function fetchProfileImg() {
+      //fetch current user's profile image url if logged in
+      try {
+        if (user) {
+          const userImgRef = ref(storage, `images/profile/${user.uid}`)
+          const userImgUrl = await getDownloadURL(userImgRef)
+          setProfileImgUrl(userImgUrl)
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchProfileImg()
+  }, [user])
+
+  useEffect(() => {
+    async function fetchEvents() {
+      setEventsLoading(true)
+      try {
+        var res
+        if (selectedOpt === "hosting") res = await fetch(`/api/events/hosting/${user.uid}`)
+        else if (selectedOpt === "attending") res = await fetch(`/api/events/attending/${user.uid}`)
+        else res = await fetch(`/api/events/past/${user.uid}`)
+
+        const data = await res.json()
+        if (!res.ok) throw data
+        setEvents(await Promise.all(data.map(async (event) => {
+          const imgRef = ref(storage, event.photoUrl)
+          const url = await getDownloadURL(imgRef)
+          return { ...event, photoUrl: url }
+        })))
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setEventsLoading(false)
+      }
+    }
+    fetchEvents()
+  }, [selectedOpt, user])
+
   if (!user?.emailVerified) navigate('/home')
 
-
+  if (isLoading) return <Loading />
   return (
-    <div>
-      <Header user={user} />
+    <>
+      { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
       <div className='flex flex-row w-full h-screen'>
         <div className='flex flex-col items-center w-3xl'>
           <div className='flex flex-col justify-evenly bg-gray-100 h-56 w-80 rounded-lg p-2 px-10 mt-32'>
@@ -48,12 +94,19 @@ function YourEvents({ user }) {
             </button>
           </div>
 
-          <div className='h-full p-2 mt-10 ml-6'>
-            <EventSkeleton nb_cards={4} />
-          </div>
+          <ul className='h-full p-2 mt-10 ml-6'>
+            {eventsLoading && <EventSkeleton nb_cards={5} />}
+            {!eventsLoading && events.length === 0 ? <div>No Events Found</div> :
+              events.map((event) => {
+                return <li key={event._id}>
+                  <EventCard event={event} eventImgUrl={event.photoUrl} key={event._id} />
+                </li>
+              })
+            }
+          </ul>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
