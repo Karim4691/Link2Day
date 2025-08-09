@@ -137,10 +137,12 @@ function Authentication({ user }) {
   }
 
   return (
-    <div className='absolute min-h-screen w-screen flex flex-col bg-white overflow-x-hidden overflow-y-hidden'>
-      <h1 className='flex-1/12 font-sacramento bg-gold text-center text-6xl py-4 text-white cursor-default'>
-        Link2Day
-      </h1>
+    <div className='absolute min-h-screen w-screen flex flex-col bg-white overflow-y-auto overflow-x-auto'>
+      <div className='flex justify-center items-center h-36 bg-gold cursor-default w-full'>
+        <h1 className='font-sacramento text-6xl text-white'>
+          Link2Day
+        </h1>
+      </div>
 
       <Modal open={showModal} onClose={() => setShowModal(false)}>
         <label className='text-lg p-1' htmlFor='email'>Email address</label>

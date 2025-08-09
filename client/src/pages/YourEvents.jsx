@@ -66,7 +66,7 @@ function YourEvents({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className='w-screen min-h-screen bg-white'>
+    <div className='w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto'>
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
       <div className='flex flex-row w-full'>
         <div className='flex flex-col items-center w-3xl'>

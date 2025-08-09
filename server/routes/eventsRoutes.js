@@ -195,4 +195,71 @@ router.patch('/update/:eventId', validateTokenID, getTimeZoneID, convertISOToUTC
   }
 })
 
+router.post('/attend/:eventId', validateTokenID, async (req, res) => {
+  const { eventId } = req.params
+  const uid = req.uid
+  try {
+    const event = await events.findOne({ _id: new ObjectId(eventId) })
+    if (!event) return res.status(404).json({ message: "Event not found", code: 'event/not-found' })
+    if (event.hostedBy === uid) return res.status(400).json({ message: "You cannot attend your own event", code: 'event/host-cannot-attend' })
+    if (event.attendees.includes(uid)) return res.status(400).json({ message: "You are already attending this event", code: 'event/already-attending' })
+
+    // Add user to attendees for the event
+    await events.updateOne(
+      { _id: new ObjectId(eventId) },
+      { $addToSet: { attendees: uid } }
+    )
+
+    // Add event to user's attended events
+    await users.updateOne(
+      { _id: uid },
+      { $addToSet: { eventsJoined: new ObjectId(eventId) } }
+    )
+    res.status(200).end()
+  } catch (error) {
+    res.status(500).json({ message: "Failed to attend event", code: error.code })
+  }
+})
+
+router.post('/unattend/:eventId', validateTokenID, async (req, res) => {
+  const { eventId } = req.params
+  const uid = req.uid
+  try {
+    const event = await events.findOne({ _id: new ObjectId(eventId) })
+    if (!event) return res.status(404).json({ message: "Event not found", code: 'event/not-found' })
+    if (event.hostedBy === uid) return res.status(400).json({ message: "You cannot attend your own event", code: 'event/host-cannot-attend' })
+    if (!event.attendees.includes(uid)) return res.status(400).json({ message: "You are not attending this event", code: 'event/not-attending' })
+
+    // Remove user from attendees for the event
+    await events.updateOne(
+      { _id: new ObjectId(eventId) },
+      { $pull: { attendees: uid } }
+    )
+
+    // Remove event from user's attended events
+    await users.updateOne(
+      { _id: uid },
+      { $pull: { eventsJoined: new ObjectId(eventId) } }
+    )
+    res.status(200).end()
+  } catch (error) {
+    res.status(500).json({ message: "Failed to unattend event", code: error.code })
+  }
+})
+
+router.get('/attendees/:eventId', async (req, res) => {
+  const { eventId } = req.params
+  try {
+    const event = await events.findOne({ _id: new ObjectId(eventId) })
+    if (!event) return res.status(404).json({ message: "Event not found", code: 'event/not-found' })
+
+    const attendees = await users.find(
+      { _id: { $in: event.attendees }},
+      {projection: {name: 1, _id: 1, bio:1}}).toArray()
+    res.status(200).json(attendees)
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch attendees", code: error.code })
+  }
+})
+
 export default router

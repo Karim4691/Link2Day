@@ -161,7 +161,7 @@ export default function EditEvent({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className="w-screen min-h-screen bg-white overflow-x-hidden overflow-y-hidden">
+    <div className="w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto">
       { (profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
       <div className="flex flex-row w-screen">
         <div className="flex flex-col w-md items-center mt-20 p-4 px-10">
@@ -239,7 +239,7 @@ export default function EditEvent({ user }) {
           </div>
         </form>
         <div className="lg:flex flex-col items-center justify-center mt-4 ml-4 hidden">
-          <img src='/create.svg' className="size-96" />
+          <img src='/edit.svg' className="size-96" />
         </div>
       </div>
     </div>

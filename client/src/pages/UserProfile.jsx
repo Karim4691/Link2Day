@@ -16,6 +16,7 @@ function Profile( { user }) {
   const { uid } = useParams()
   const [userData, setUserData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [currentUserProfileUrl, setCurrentUserProfileUrl] = useState(null) //current user's profile image url (i.e. the user that is logged in)
   const [profileImgUrl, setProfileImgUrl] = useState(null) //profile image url
   const [file, setFile] = useState(null) //profile image
   const [showModal, setShowModal] = useState(false)
@@ -27,21 +28,24 @@ function Profile( { user }) {
   const [bio, setBio] = useState("")
   const [refreshKey, setRefreshKey] = useState(0) //used to refresh autocomplete component
 
-  //Load user profile image
+  //Load the current and selected user's profile image
   useEffect(() => {
     async function fetchUserProfileImage() {
       try {
-        if (user) {
-          const imgRef = ref(storage, `images/profile/${user.uid}`)
-          const url = await getDownloadURL(imgRef)
-          setProfileImgUrl(url)
+        if (user) { // Load the current user's profile image
+          const currentImgRef = ref(storage, `images/profile/${user.uid}`)
+          const currentUrl = await getDownloadURL(currentImgRef)
+          setCurrentUserProfileUrl(currentUrl)
         }
+        const imgRef = ref(storage, `images/profile/${uid}`) // Load the profile image of the user being viewed
+        const url = await getDownloadURL(imgRef)
+        setProfileImgUrl(url)
       } catch (error) {
         console.error("Error fetching user profile image:", error)
       }
     }
     fetchUserProfileImage()
-  }, [user])
+  }, [user, uid])
 
   useEffect(() => {
     setIsLoading(true)
@@ -58,7 +62,7 @@ function Profile( { user }) {
       }
     }
     fetchUserData()
-  }, [user, uid])
+  }, [uid])
 
   useEffect(() => { //set user data as placeholders for profile editing/reset any uncommitted changes towards the profile editing
     if (user?.uid === uid && userData && !showModal) {
@@ -149,8 +153,8 @@ function Profile( { user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className='w-screen min-h-screen bg-white'>
-      { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
+    <div className='w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto'>
+      { (user && profileImgUrl) ? <Header user={user} profileImgUrl={currentUserProfileUrl} /> : <Header user={user} />}
 
       {user?.uid === uid && <Modal open={showModal} onClose={() => setShowModal(false)}>
         <ul>
@@ -193,7 +197,7 @@ function Profile( { user }) {
             </div>
           </label>
           }
-          <div className='flex flex-col py-3 px-2 mt-8 text-md bg-white rounded-md w-48 md:w-96 max-h-fit overflow-y-scroll'>
+          <div className='flex flex-col py-3 px-2 mt-8 text-md bg-white rounded-md w-48 md:w-96 overflow-y-scroll'>
             <div className='text-3xl mx-1 mb-4'>
               {userData.name}
             </div>
@@ -210,7 +214,7 @@ function Profile( { user }) {
           </div>
         </div>
 
-        <div className='flex flex-col bg-white mt-20 text-md ml-20 mr-8 max-h-fit w-96 md:w-xl lg:w-2xl rounded-md p-2 overflow-x-scroll'>
+        <div className='flex flex-col bg-white mt-20 text-md ml-20 mr-8 h-2/3 w-96 md:w-xl lg:w-2xl rounded-md p-2 overflow-x-scroll'>
           <div className='flex flex-row justify-around items-center'>
             <ul className='flex flex-col items-center justify-center'>
               <li className='text-5xl'>

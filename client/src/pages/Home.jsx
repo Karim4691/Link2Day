@@ -118,7 +118,7 @@ function Home({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <section className="relative min-w-screen min-h-screen bg-white">
+    <section className="relative min-w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto">
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
 
       <div className="flex flex-col w-full h-full pl-12 mt-24 pb-12">
@@ -138,7 +138,7 @@ function Home({ user }) {
             Max Distance
             { selectMaxDistance ? <FaAngleUp className="inline ml-2" /> : <FaAngleDown className="inline ml-2" />}
             {selectMaxDistance && (
-              <div ref={dropdown} className="absolute right-0 mt-4 w-full bg-white rounded-md shadow-lg  z-10">
+              <div ref={dropdown} className="absolute right-0 mt-4 w-full bg-white rounded-md shadow-lg z-10">
                 <ul className="py-1">
                   {["10", "25", "50", "100"].map((distance) => (
                     <li key={distance} className={`px-4 py-2 hover:text-gold cursor-pointer ${maxDistance === distance ? "text-gold" : "text-gray-400"}`} onClick={() => {
@@ -170,7 +170,7 @@ function Home({ user }) {
           {!eventsLoading && events.length !== 0 &&
             events.map((event) => {
               return <li key={event._id}>
-                <EventCard event={event} eventImgUrl={event.photoUrl} key={event._id} />
+                <EventCard event={event} key={event._id} />
               </li>
             })
           }

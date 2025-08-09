@@ -9,9 +9,11 @@ import { IoLocationSharp } from "react-icons/io5"
 import { GoClock } from "react-icons/go"
 import { utcTimestampToLocal } from '../utils/utcTimestampConversion.js'
 import { AiFillEdit } from "react-icons/ai"
-import { FaTrashAlt } from "react-icons/fa"
+import { FaTrashAlt, FaCalendarCheck } from "react-icons/fa"
+import { FaCalendarXmark } from "react-icons/fa6"
 import { RiDeleteBack2Line } from "react-icons/ri"
 import Modal from '../components/Modal.jsx'
+import UserCard from '../components/UserCard.jsx'
 
 export default function Event ( { user } ) {
   const { eid } = useParams()
@@ -21,6 +23,9 @@ export default function Event ( { user } ) {
   const [profileImgUrl, setProfileImgUrl] = useState(null) //current user's profile image url
   const [isLoading, setIsLoading] = useState(true)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showAttendeesModal, setShowAttendeesModal] = useState(false)
+  const [attendees, setAttendees] = useState([]) //list of attendees
+  const [isAttending, setIsAttending] = useState(false) //state to check if the current user is attending the event (not used if the user is also the host)
   const navigate = useNavigate()
 
   //Load user profile image
@@ -58,6 +63,11 @@ export default function Event ( { user } ) {
         const hostImgUrl = await getDownloadURL(hostImgRef)
         setHostImgURL(hostImgUrl)
 
+        //check if current user is attending the event
+        if (user && data.attendees.includes(user.uid)) {
+          setIsAttending(true)
+        }
+
       } catch (error) {
         console.error(error)
       } finally {
@@ -65,7 +75,28 @@ export default function Event ( { user } ) {
       }
     }
     fetchEventAndHost()
-  }, [eid])
+  }, [eid, user])
+
+  //Fetch attendees
+  useEffect(() => {
+    const fetchAttendees = async () => {
+      if (event) {
+        try {
+          const res = await fetch(`/api/events/attendees/${event._id}`)
+          const data = await res.json()
+          if (!res.ok) throw data
+          setAttendees(await Promise.all(data.map(async (attendee) => { //get attendee image URLs
+            const imgRef = ref(storage, `images/profile/${attendee._id}`)
+            const url = await getDownloadURL(imgRef)
+            return { ...attendee, imgUrl: url }
+          })))
+        } catch (error) {
+          console.error(error)
+        }
+      }
+    }
+    fetchAttendees()
+  }, [event])
 
   const handleDelete = async () => {
     try {
@@ -91,19 +122,71 @@ export default function Event ( { user } ) {
     }
   }
 
+  const handleAttend = async () => {
+    try {
+      const idToken = await user.getIdToken()
+      const res = await fetch(`/api/events/attend/${event._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        }
+      })
+      if (!res.ok) throw await res.json()
+      setIsAttending(true)
+    } catch (error) {
+      console.error(error)
+      errorHandler(error.code)
+    }
+  }
+
+  const handleUnattend = async () => {
+    try {
+      const idToken = await user.getIdToken()
+      const res = await fetch(`/api/events/unattend/${event._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        }
+      })
+      if (!res.ok) throw await res.json()
+      setIsAttending(false)
+    } catch (error) {
+      console.error(error)
+      errorHandler(error.code)
+    }
+  }
+
   if (isLoading) return <Loading />
   return (
-    <div className='w-screen min-h-screen bg-white overflow-x-hidden overflow-y-hidden'>
+    <div className='w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto'>
       <Modal open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
         <div className='flex flex-col items-center justify-center text-lg'>
           <p className='mb-2 text-gray-500'>Are you sure?</p>
-          <button className='rounded-lg bg-red-500 p-3 text-white hover:opacity-80 cursor-pointer flex flex-row items-center' onClick={handleDelete}> Delete <RiDeleteBack2Line className='inline ml-2' />
+          <button className='rounded-lg bg-red-500 p-3 text-white hover:bg-red-600 cursor-pointer flex flex-row items-center' onClick={handleDelete}> Delete <RiDeleteBack2Line className='inline ml-2' />
           </button>
         </div>
       </Modal>
+
+      <Modal open={showAttendeesModal} onClose={() => setShowAttendeesModal(false)}>
+        <div className='flex flex-col text-lg'>
+          <h2 className='text-2xl font-bold mb-4'>Attendees</h2>
+          <div className='flex flex-col w-full max-h-96 overflow-y-auto'>
+            {attendees.length > 0 ? (
+              attendees.map((attendee) => (
+                <UserCard key={attendee._id} user={attendee} />
+              ))
+            ) : (
+              <p className='text-gray-500'>No attendees yet</p>
+            )}
+          </div>
+        </div>
+      </Modal>
+
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
       <h2 className='w-screen h-48 pl-4 py-4 flex flex-col justify-center items-start p-2 border-b-2 border-gray-300'>
-        <div className='mb-4 text-5xl font-tinos h-1/2'>{event.title}</div>
+        <div className='mb-4 text-5xl font-tinos min-h-1/2'>{event.title}</div>
         <div className='flex flex-row items-center w-full h-1/2 justify-between'>
           <div className='flex flex-row items-center'>
             <Link to={`/users/${event.hostedBy}`}>
@@ -122,18 +205,26 @@ export default function Event ( { user } ) {
             <button className='rounded-lg bg-red-500 p-4 text-white hover:opacity-80 cursor-pointer flex flex-row items-center' onClick={() => setShowDeleteModal(true)}> <FaTrashAlt className='inline mr-2' /> Delete Event
             </button>
           </div>}
+
+          {user && user.uid !== event.hostedBy && !isAttending && (
+            <button className='p-2 mr-4 text-cyan hover:opacity-80 cursor-pointer flex flex-row items-center text-2xl' onClick={() => handleAttend()}> <FaCalendarCheck className='inline mr-2' /> Attend
+            </button>
+          )}
+
+          {user && user.uid !== event.hostedBy && isAttending && (
+            <button className='p-2 mr-4 text-red-500 hover:text-red-600 cursor-pointer flex flex-row items-center text-2xl' onClick={() => handleUnattend()}> <FaCalendarXmark className='inline mr-2' /> Unattend
+            </button>
+          )}
         </div>
       </h2>
 
-      <div className='flex flex-row w-screen h-screen bg-gray-100 p-4 pt-10'>
-        <div className='flex flex-col w-2/3 h-full'>
-          <img src={eventImgURL} className='rounded-xl w-3/4 h-[32rem] mb-4'/>
-          <div className='text-lg p-4 flex flex-col items-start justify-start'>
+      <div className='flex flex-row w-screen min-h-screen bg-gray-100 p-4 pt-10'>
+        <div className='relative flex flex-col min-w-2/3 min-h-full'>
+          <img src={eventImgURL} className='rounded-xl w-3/4 h-full mb-4'/>
+          <div className='text-lg p-4 flex flex-col items-start justify-start w-3/4'>
+            <button className='text-cyan mt-2 text-right hover:underline text-lg cursor-pointer font-tinos w-full' onClick={() => {setShowAttendeesModal(true)}}> View Attendees </button>
             <h3 className='text-2xl font-bold mb-2'>Details</h3>
             <p className='text-[16px] overflow-y-scroll'>{event.details}</p>
-            <button className='text-cyan mt-4 hover:underline text-lg cursor-pointer font-tinos' onClick={() => {
-              //todo
-            }}> View Attendees </button>
           </div>
         </div>
 

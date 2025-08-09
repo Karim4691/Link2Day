@@ -140,7 +140,7 @@ export default function CreateEvent({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className="w-screen min-h-screen bg-white">
+    <div className="w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto">
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
       <div className="flex flex-row w-screen pb-8 pr-4">
         <div className="flex flex-col w-md items-center mt-20 p-4 px-10">

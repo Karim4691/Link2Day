@@ -105,6 +105,15 @@ const ErrorHandler = (code) => {
     case "event/unauthorized":
       toast.error("You are not authorized to perform this action.")
       break
+    case "event/already-attending":
+      toast.error("You are already attending this event.")
+      break
+    case "event/host-cannot-attend":
+      toast.error("You cannot attend your own event.")
+      break
+    case "event/not-attending":
+      toast.error("You are not attending this event.")
+      break
     default:
       toast.error("Something went wrong. Please try again later.")
   }
