@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { auth } from "../firebase"
 import { signOut } from "firebase/auth"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useEffect } from "react"
 
 function Header( { user, profileImgUrl } ) {
@@ -16,7 +16,6 @@ function Header( { user, profileImgUrl } ) {
       .then(() => navigate('/'))
       .catch((error) => console.log(error))
   }
-  const handleViewProfile = () => {navigate(`/users/${user.uid}`)}
 
 
   //Handle a user click outside of the profile dropdown
@@ -29,34 +28,40 @@ function Header( { user, profileImgUrl } ) {
   }, [])
 
   return (
-    <div className="relative mt-4 px-10 py-3 flex flex-row justify-start sm:justify-center items-center border-b border-gray-300 w-screen h-24">
-      <div className="font-sacramento text-gold text-5xl cursor-pointer mr-5" onClick={() => navigate('/home')}>
-        Link2Day
-      </div>
+    <div className="relative pt-4 px-10 py-4 flex flex-row justify-start sm:justify-center items-center border-b w-screen h-32 bg-black">
+      <Link to="/home">
+        <h1 className="font-sacramento text-gold text-5xl cursor-pointer pr-5">
+          Link2Day
+        </h1>
+      </Link>
 
       { !user?.emailVerified &&
         <div className="absolute h-full right-0 flex flex-row items-center">
-          <button type='button' className="mr-4 cursor-pointer text-black hover:text-gold" onClick={() => navigate('/')}>Log in</button>
-          <button type='button' className="p-3 mx-4 rounded-md bg-gold text-white text-sm cursor-pointer hover:shadow-lg" onClick={() => navigate('/?sign-up=true')}>Sign up</button>
+          <Link to="/" className="mr-4 text-white hover:text-gold">
+            Log in
+          </Link>
+          <Link to="/?sign-up=true" className="p-3 mx-4 rounded-md bg-gold text-white text-sm hover:opacity-80">
+            Sign up
+          </Link>
         </div>
       }
 
       { user?.emailVerified &&
         <div className='absolute h-full right-0 flex items-center justify-end'>
-          <button className="hover:text-gold ml-2 text-3xl cursor-pointer font-normal mr-8" onClick={() => setSelectProfile(!selectProfile)} ref={profile}>
-            <img src={profileImgUrl} alt="Profile" className="size-16 rounded-full"/>
+          <button className="hover:text-gold ml-2 text-3xl cursor-pointer font-normal pr-8" onClick={() => setSelectProfile(!selectProfile)} ref={profile}>
+            <img src={profileImgUrl} className="size-16 rounded-full"/>
           </button>
         </div>
       }
 
-      {selectProfile &&
+      {selectProfile && user &&
       <div className="absolute flex flex-col right-4 mt-48 w-48 rounded-md shadow-lg ring-1 ring-black/30 bg-white z-10" ref={dropdown}>
-        <div className="cursor-pointer text-xs mx-2 my-4 hover:text-gold w-fit" onClick={handleViewProfile}>
+        <Link to={`/users/${user.uid}`} className="text-xs mx-2 my-4 hover:text-gold w-fit">
           View profile
-        </div>
-        <div className="cursor-pointer text-xs mx-2 hover:text-gold w-fit" onClick={() => navigate('/your-events')}>
+        </Link>
+        <Link to="/your-events" className="text-xs mx-2 hover:text-gold w-fit">
           Your events
-        </div>
+        </Link>
         <div className="cursor-pointer text-xs mx-2 my-4 hover:text-gold w-fit" onClick={handleSignOut}>
           Log out
         </div>

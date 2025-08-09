@@ -1,5 +1,3 @@
-import auth from '../firebase.js'
-
 const getTimeZoneData = async (req, res, next) => {
   try {
     if (!req.body.location) { // If no location is provided, skip fetching timezone data

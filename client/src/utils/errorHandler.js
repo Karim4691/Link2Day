@@ -1,6 +1,9 @@
 import toast from "react-hot-toast"
 
-
+/*
+@param {string} code - The error code to handle.
+This function handles various error codes and displays appropriate error messages using toast
+*/
 const ErrorHandler = (code) => {
   switch (code) {
     //Firebase Auth errors
@@ -62,7 +65,7 @@ const ErrorHandler = (code) => {
       toast.error("Internal error. Please try again.")
       break
 
-    // App specific errors
+    // Custom errors
     case "auth/missing-city-or-state":
       toast.error("You must specify the city or state.")
       break

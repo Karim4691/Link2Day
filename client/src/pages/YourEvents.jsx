@@ -1,13 +1,14 @@
 import Header from '../components/Header.jsx'
 import { FaPlus } from "react-icons/fa"
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useEffect } from 'react'
 import EventSkeleton from '../components/EventSkeleton.jsx'
 import { getDownloadURL, ref } from 'firebase/storage'
 import { storage } from '../firebase.js'
 import Loading from '../components/Loading.jsx'
 import EventCard from '../components/EventCard.jsx'
+import NoEventsFound from '../components/NoEventsFound.jsx'
 
 function YourEvents({ user }) {
   const [selectedOpt, setSelectedOpt] = useState("hosting")
@@ -65,11 +66,11 @@ function YourEvents({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <>
+    <div className='w-screen min-h-screen bg-white'>
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
-      <div className='flex flex-row w-full h-screen'>
+      <div className='flex flex-row w-full'>
         <div className='flex flex-col items-center w-3xl'>
-          <div className='flex flex-col justify-evenly bg-gray-100 h-56 w-80 rounded-lg p-2 px-10 mt-32'>
+          <div className='flex flex-col justify-evenly bg-gray-100 h-56 w-40 md:w-80 rounded-lg p-2 px-10 mt-32'>
             <p className={`font-bold cursor-pointer w-fit
               ${selectedOpt === "hosting" ? "text-gold" : "text-gray-500"}`} onClick={() => setSelectedOpt("hosting")}>
               Hosting
@@ -88,15 +89,18 @@ function YourEvents({ user }) {
         <div className='w-full'>
           <div className='flex flex-row justify-between items-baseline'>
             <h2 className='text-5xl font-bold p-2 mt-12 ml-6 font-tinos'> Your Events </h2>
-            <button type='button' className='flex flex-row items-center justify-center p-2 cursor-pointer text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80' onClick={() => navigate("/your-events/create")}>
+            <Link to="/your-events/create" className='flex flex-row items-center justify-center p-2 text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80'>
               <FaPlus className='p-1 size-6' />
               <p className='p-1'>Create An Event</p>
-            </button>
+            </Link>
           </div>
 
-          <ul className='h-full p-2 mt-10 ml-6'>
+          {!eventsLoading && events.length === 0 && (
+            <NoEventsFound />
+          )}
+          <ul className='p-2 mt-10 ml-6'>
             {eventsLoading && <EventSkeleton nb_cards={5} />}
-            {!eventsLoading && events.length === 0 ? <div>No Events Found</div> :
+            {!eventsLoading && events.length !== 0 &&
               events.map((event) => {
                 return <li key={event._id}>
                   <EventCard event={event} eventImgUrl={event.photoUrl} key={event._id} />
@@ -106,7 +110,7 @@ function YourEvents({ user }) {
           </ul>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

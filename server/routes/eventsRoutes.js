@@ -1,29 +1,19 @@
 import express from 'express'
 import validateTokenID from '../middlewares/validateTokenID.js'
 import db from '../mongodb.js'
-import auth from '../firebase.js'
-import getTimeZoneData from '../middlewares/getTimeZoneData.js'
+import getTimeZoneID from '../middlewares/getTimeZoneID.js'
 import { ObjectId } from 'mongodb'
-import { DateTime } from 'luxon'
+import convertISOToUTC from '../middlewares/convertISOToUTC.js'
 
 const router = express.Router()
 const users = db.collection('users')
 const events = db.collection('events')
 
-router.post('/create', validateTokenID, getTimeZoneData, async (req, res) => {
-  const { title, details, locationName, location, eventStartISO, eventEndISO, timeZoneId } = req.body
+router.post('/create', validateTokenID, getTimeZoneID, convertISOToUTC, async (req, res) => {
+  const { title, details, locationName, location, eventStartISO, eventEndISO, eventStart, eventEnd, timeZoneId } = req.body
   const uid = req.uid
 
-
   try {
-    //convert iso formatted dates to utc timestamp with respect to the event's timezone
-    console.log(eventStartISO)
-    const start_date = DateTime.fromISO(eventStartISO, { zone: timeZoneId })
-    console.log(start_date)
-    const eventStart = start_date.toUTC().toMillis()
-    const end_date = DateTime.fromISO(eventEndISO, { zone: timeZoneId })
-    const eventEnd = end_date.toUTC().toMillis()
-
     //get host name
     const user = await users.findOne({ _id: uid })
     if (!user) {
@@ -38,8 +28,10 @@ router.post('/create', validateTokenID, getTimeZoneData, async (req, res) => {
       details,
       locationName,
       location,
-      eventStart,
-      eventEnd,
+      eventStartISO,
+      eventEndISO,
+      eventStart, // utc timestamp
+      eventEnd, //utc timestamp
       hostedBy: uid,
       hostName,
       timeZoneId: timeZoneId,
@@ -56,14 +48,13 @@ router.post('/create', validateTokenID, getTimeZoneData, async (req, res) => {
     )
     res.status(201).json({ eventId: result.insertedId })
   } catch (error) {
-    console.error("Error creating event:", error)
     res.status(500).json({ message: "Failed to create event", code: error.code })
   }
 })
 
 router.get('/find', async (req, res) => { 
   try {
-    const { lng, lat, maxDistance, searchEvents } = req.query
+    var { lng, lat, maxDistance, searchEvents } = req.query
     var eventsQuery = {
       $search: {
         compound: {
@@ -79,11 +70,10 @@ router.get('/find', async (req, res) => {
           center : {
             type : "Point" ,
             coordinates : [ parseFloat(lng), parseFloat(lat) ]
-          }
+          },
+          radius: maxDistance ? parseInt(maxDistance) * 1000 : 12765000 //max distance between any two points on earth is 12765 km
         }
       }
-
-      if (maxDistance) geoQuery.geoWithin.circle.radius = parseInt(maxDistance) * 1000 // convert km to meters
       
       eventsQuery.$search.compound.must.push(geoQuery)
     }
@@ -119,7 +109,6 @@ router.get('/find', async (req, res) => {
 
     res.status(200).json(eventsMatched)
   } catch (error) {
-    console.error("Error fetching events:", error)
     res.status(500).json({ message: "Failed to fetch events", code: error.code })
   }
 })
@@ -128,13 +117,27 @@ router.get('/:eventId', async (req, res) => {
   const { eventId } = req.params
   try {
     const event = await events.findOne({ _id: new ObjectId(eventId) })
-    if (!event) {
-      return res.status(404).json({ message: "Event not found", code: 'event/not-found' })
-    }
+    if (!event) return res.status(404).json({ message: "Event not found", code: 'event/not-found' })
+    
     res.status(200).json(event)
   } catch (error) {
-    console.error(error)
     res.status(500).json({ message: "Failed to fetch event", code: error.code })
+    console.error(error)
+  }
+})
+
+router.delete('/:eventId', validateTokenID, async (req, res) => {
+  const { eventId } = req.params
+  const uid = req.uid
+  try {
+    const event = await events.findOne({ _id: new ObjectId(eventId) })
+    if (!event) return res.status(404).json({ message: "Event not found", code: 'event/not-found' })
+    if (event.hostedBy !== uid) return res.status(403).json({ message: "You are not authorized to delete this event", code: 'event/unauthorized' })
+
+    await events.deleteOne({ _id: new ObjectId(eventId) })
+    res.status(204).end()
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete event", code: error.code })
   }
 })
 
@@ -144,7 +147,6 @@ router.get('/hosting/:uid', async (req, res) => {
     const eventsHosting = await events.find({ hostedBy: uid, eventEnd: { $gt: Date.now() } }).sort({ eventStart: 1 }).toArray()
     res.status(200).json(eventsHosting)
   } catch (error) {
-    console.error(error)
     res.status(500).json({ message: "Failed to fetch hosted events", code: error.code })
   }
 })
@@ -155,7 +157,6 @@ router.get('/attending/:uid', async (req, res) => {
     const attendingEvents = await events.find({ attendees: { $in: [uid] }, eventEnd: { $gt: Date.now() } }).sort({ eventStart: 1 }).toArray()
     res.status(200).json(attendingEvents)
   } catch (error) {
-    console.error(error)
     res.status(500).json({ message: "Failed to fetch attending events", code: error.code })
   }
 })
@@ -167,20 +168,18 @@ router.get('/past/:uid', async (req, res) => {
     $or: [ { hostedBy: uid }, { attendees: { $in: [uid] } } ] }).sort({ eventStart: -1 }).toArray()
     res.status(200).json(pastEvents)
   } catch (error) {
-    console.error(error)
     res.status(500).json({ message: "Failed to fetch past events", code: error.code })
   }
 })
 
-router.patch('/update/:eventId', validateTokenID, getTimeZoneData,async (req, res) => {
+router.patch('/update/:eventId', validateTokenID, getTimeZoneID, convertISOToUTC, async (req, res) => {
   try {
     const { eventId } = req.params
     const updates = req.body
     const uid = req.uid
-    const event = await events.findOne({ _id: new db.ObjectId(eventId) })
-    if (!event) {
-      return res.status(404).json({ message: "Event not found", code: 'event/not-found' })
-    } 
+    const event = await events.findOne({ _id: new ObjectId(eventId) })
+    if (!event) return res.status(404).json({ message: "Event not found", code: 'event/not-found' })
+    
     if (event.hostedBy !== uid) {
       return res.status(403).json({ message: "You are not authorized to update this event", code: 'event/unauthorized' })
     }
@@ -192,7 +191,6 @@ router.patch('/update/:eventId', validateTokenID, getTimeZoneData,async (req, re
 
     res.status(200).end()
   } catch (error) {
-    console.error("Error updating event:", error)
     res.status(500).json({ message: "Failed to update event", code: error.code })
   }
 })

@@ -6,8 +6,6 @@ const validateTokenID = (req, res, next) => {
   
     auth.verifyIdToken(idToken)
     .then((decodedToken) => {
-      console.log("Token successfully validated")
-
       req.uid = decodedToken.uid // Store uid
       next()
     })
@@ -16,7 +14,6 @@ const validateTokenID = (req, res, next) => {
         message : error.message, 
         code: "auth/invalid-id-token"
       })
-      console.log(error)
     })
 }
 

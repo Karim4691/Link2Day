@@ -9,6 +9,7 @@ import { storage } from "../firebase.js"
 import { ref, getDownloadURL } from "firebase/storage"
 import Autocomplete from "../components/Autocomplete.jsx"
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6"
+import NoEventsFound from "../components/NoEventsFound.jsx"
 
 
 function Home({ user }) {
@@ -40,6 +41,22 @@ function Home({ user }) {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  //Load user profile image
+  useEffect(() => {
+    async function fetchUserProfileImage() {
+      try {
+        if (user) {
+          const imgRef = ref(storage, `images/profile/${user.uid}`)
+          const url = await getDownloadURL(imgRef)
+          setProfileImgUrl(url)
+        }
+      } catch (error) {
+        console.error("Error fetching user profile image:", error)
+      }
+    }
+    fetchUserProfileImage()
+  }, [user])
+
   useEffect(() => {
     async function fetchUserDataAndEvents() {
       try {
@@ -54,15 +71,10 @@ function Home({ user }) {
           lat = data.coordinates[1]
           setCoordinates({ lat, lng })
           setUserName(data.name)
-
-          //fetch profileImgUrl
-          const imgRef = ref(storage, `images/profile/${user.uid}`)
-          const url = await getDownloadURL(imgRef)
-          setProfileImgUrl(url)
         }
         setIsLoading(false)
 
-        //fetch events
+        //fetch events near user
         const eventsRes = await fetch(`/api/events/find?lng=${lng}&lat=${lat}&maxDistance=50`)
         const eventsData = await eventsRes.json()
         if (!eventsRes.ok) throw eventsData
@@ -82,15 +94,15 @@ function Home({ user }) {
     fetchUserDataAndEvents()
   }, [user])
 
-  if (isLoading) return <Loading />
-
   const handleSearch = async () => {
     try {
       setEventsLoading(true)
+      // Search for events
       const res = await fetch(`/api/events/find?lng=${coordinates.lng}&lat=${coordinates.lat}&maxDistance=${maxDistance}&searchEvents=${searchEvents}`)
       const data = await res.json()
       if (!res.ok) throw data
 
+      // set the photo url instead of refs for photoUrl
       setEvents(await Promise.all(data.map(async (event) => {
         const imgRef = ref(storage, event.photoUrl)
         const url = await getDownloadURL(imgRef)
@@ -103,21 +115,23 @@ function Home({ user }) {
     }
   }
 
+
+  if (isLoading) return <Loading />
   return (
-    <section className="relative w-screen h-screen">
+    <section className="relative min-w-screen min-h-screen bg-white">
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
 
-      <div className="flex flex-col w-full h-full pl-12 mt-24">
+      <div className="flex flex-col w-full h-full pl-12 mt-24 pb-12">
         <h2 className="font-semibold font-tinos py-2 mb-8">
           {userName && <p className="mb-16 text-5xl">Welcome back, {userName.split(' ')[0]}!</p>}
           <p className="text-3xl">Upcoming Events</p>
         </h2>
 
-        <div className="flex flex-row items-center justify-evenly lg:w-[1344px] mb-2">
+        <div className="flex flex-row items-center justify-evenly w-11/12 mb-2">
           <div className="relative flex flex-row w-xl">
-            <input placeholder="Search for events" className="w-32 sm:w-64 border border-gray-300 py-2 p-1 rounded-l-md shadow-inner focus:outline-gold text-sm hover:border-gray-500" type="text" value={searchEvents} onChange={(e) => setSearchEvents(e.target.value)} />
+            <input placeholder="Search for events" className="w-32 md:w-64 border border-gray-300 py-2 p-1 rounded-l-md shadow-inner focus:outline-gold text-sm hover:border-gray-500" type="text" value={searchEvents} onChange={(e) => setSearchEvents(e.target.value)} />
             <Autocomplete selectedLocation={location} setSelectedLocation={setLocation} setCoordinates={setCoordinates}
-              inputClassName={"relative w-32 sm:w-64 border border-gray-300 py-2 p-1 rounded-r-md shadow-inner focus:outline-gold text-sm hover:border-gray-500 pr-14"} placeholder={"Neighborhood"} showIcon onIconClick={handleSearch}/>
+              inputClassName={"relative w-32 md:w-64 border border-gray-300 py-2 p-1 rounded-r-md shadow-inner focus:outline-gold text-sm hover:border-gray-500 pr-14"} placeholder={"Neighborhood"} showIcon onIconClick={handleSearch}/>
           </div>
 
           <button ref={maxDistanceRef} type="button" className="relative bg-gold text-white py-2 px-4 rounded-2xl cursor-pointer z-10" onClick={() => setSelectMaxDistance(!selectMaxDistance)}>
@@ -146,9 +160,14 @@ function Home({ user }) {
           </button>
         </div>
 
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-8 w-[1344px] h-full">
+        {!eventsLoading && events.length === 0 && (
+          <div className="w-11/12">
+            <NoEventsFound />
+          </div>
+        )}
+        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-2 mt-8 w-11/12 h-full">
           {eventsLoading && <EventSkeleton nb_cards={6} />}
-          {!eventsLoading && events.length === 0 ? <div>No Events Found</div> :
+          {!eventsLoading && events.length !== 0 &&
             events.map((event) => {
               return <li key={event._id}>
                 <EventCard event={event} eventImgUrl={event.photoUrl} key={event._id} />

@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast'
 import Loading from "./components/Loading.jsx"
 import FourOFour from "./pages/FourOFour.jsx"
 import CreateEvent from "./pages/CreateEvent.jsx"
+import EditEvent from "./pages/EditEvent.jsx"
 import Event from "./pages/Event.jsx"
 import './assets/calendar_theme.css'
 import 'primereact/resources/primereact.min.css'
@@ -37,6 +38,15 @@ function App() {
     return () => unsubscribe()
   }, [])
 
+
+  //set the background color of the body to black
+  useEffect(() => {
+    document.body.style.backgroundColor = "black"
+    return () => {
+      document.body.style.backgroundColor = ""
+    }
+  }, [])
+
   if (isFetching) {
     return <Loading />
   }
@@ -53,6 +63,7 @@ function App() {
         <Route path="/your-events/create" element={<CreateEvent user={user}/>} />
         <Route path="*" element={<FourOFour />} />
         <Route path='/events/:eid' element={<Event user={user}/>} />
+        <Route path='/events/edit/:eid' element={<EditEvent user={user} />} />
       </Routes>
     </BrowserRouter>
 

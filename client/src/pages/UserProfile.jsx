@@ -27,6 +27,22 @@ function Profile( { user }) {
   const [bio, setBio] = useState("")
   const [refreshKey, setRefreshKey] = useState(0) //used to refresh autocomplete component
 
+  //Load user profile image
+  useEffect(() => {
+    async function fetchUserProfileImage() {
+      try {
+        if (user) {
+          const imgRef = ref(storage, `images/profile/${user.uid}`)
+          const url = await getDownloadURL(imgRef)
+          setProfileImgUrl(url)
+        }
+      } catch (error) {
+        console.error("Error fetching user profile image:", error)
+      }
+    }
+    fetchUserProfileImage()
+  }, [user])
+
   useEffect(() => {
     setIsLoading(true)
     async function fetchUserData () {
@@ -35,11 +51,7 @@ function Profile( { user }) {
         const data = await res.json()
         if (data.code !== undefined) throw data // Handle error from API
         setUserData(data)
-        const imageRef = ref(storage, `${data.photoUrl}`)
-        const url = await getDownloadURL(imageRef) //get profile image url
-        setProfileImgUrl(url)
       } catch (error) {
-        errorHandler(error.code)
         console.log(error)
       } finally {
         setIsLoading(false)
@@ -48,19 +60,18 @@ function Profile( { user }) {
     fetchUserData()
   }, [user, uid])
 
-  useEffect(() => { //set user data as placeholders for profile editing
+  useEffect(() => { //set user data as placeholders for profile editing/reset any uncommitted changes towards the profile editing
     if (user?.uid === uid && userData && !showModal) {
       setName(userData.name)
       setLocation(userData.locationName)
-      setCoordinates({ lat : null, lng : null }) //reset to original state
+      setCoordinates({ lng: userData.coordinates[0], lat: userData.coordinates[1] })
       setBio(userData.bio)
       setRefreshKey((prev) => prev+1) //reset autocomplete component
     }
   }, [user, uid, userData, showModal])
 
-  useEffect(() => {
+  useEffect(() => { //used to re-render profile image when user uploads a new image
     if (!file) return
-
     const objectUrl = URL.createObjectURL(file)
     setProfileImgUrl(objectUrl)
 
@@ -81,7 +92,7 @@ function Profile( { user }) {
 
       const updates = {} //updates to implement
       if (name !== userData.name) updates.name=name
-      if (coordinates.lat !== null) {
+      if (userData.locationName !== location) {
         updates.locationName = location
         updates.location = {
           type: "Point",
@@ -138,7 +149,7 @@ function Profile( { user }) {
 
   if (isLoading) return <Loading />
   return (
-    <>
+    <div className='w-screen min-h-screen bg-white'>
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
 
       {user?.uid === uid && <Modal open={showModal} onClose={() => setShowModal(false)}>
@@ -167,9 +178,9 @@ function Profile( { user }) {
       </Modal>
       }
 
-      <div className='bg-gray-100 h-screen pt-20 pl-20 w-screen flex flex-row'>
-        <div className='flex flex-col items-center w-1/4'>
-          <img src={profileImgUrl} className='rounded-full w-48 h-48'/>
+      <div className='bg-gray-100 h-screen pt-10 md:pt-20 pl-20 flex flex-row'>
+        <div className='flex flex-col items-center'>
+          <img src={profileImgUrl} className='rounded-full w-24 h-24 md:w-48 md:h-48'/>
           {user?.uid === uid &&
           <label>
             <input className='hidden' type='file' accept='image/*'
@@ -182,7 +193,7 @@ function Profile( { user }) {
             </div>
           </label>
           }
-          <div className='flex flex-col py-3 px-2 mt-8 text-md bg-white rounded-md w-full'>
+          <div className='flex flex-col py-3 px-2 mt-8 text-md bg-white rounded-md w-48 md:w-96 max-h-fit overflow-y-scroll'>
             <div className='text-3xl mx-1 mb-4'>
               {userData.name}
             </div>
@@ -199,7 +210,7 @@ function Profile( { user }) {
           </div>
         </div>
 
-        <div className='flex flex-col bg-white mt-20 text-md h-3/5 ml-20 w-3/5 rounded-md p-2'>
+        <div className='flex flex-col bg-white mt-20 text-md ml-20 mr-8 max-h-fit w-96 md:w-xl lg:w-2xl rounded-md p-2 overflow-x-scroll'>
           <div className='flex flex-row justify-around items-center'>
             <ul className='flex flex-col items-center justify-center'>
               <li className='text-5xl'>
@@ -233,7 +244,7 @@ function Profile( { user }) {
 
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

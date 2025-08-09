@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import Header from "../components/Header"
 import { storage } from "../firebase.js"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
@@ -10,8 +10,9 @@ import { Calendar } from 'primereact/calendar'
 import TimePicker from 'react-time-picker'
 import Loading from "../components/Loading.jsx"
 import toast from "react-hot-toast"
+import { utcTimestampToLocalDate } from "../utils/utcTimestampConversion.js"
 
-export default function CreateEvent({ user }) {
+export default function EditEvent({ user }) {
   const [isLoading, setIsLoading] = useState(true)
   const [imgURL, setImgURL] = useState(null) //event img url
   const [imageFile, setImageFile] = useState(null) //event image file
@@ -28,6 +29,8 @@ export default function CreateEvent({ user }) {
   // redirect if user is not properly authenticated
   const navigate = useNavigate()
   if (!user?.emailVerified) navigate('/home')
+
+  const { eid } = useParams()
 
   //Load user profile image
   useEffect(() => {
@@ -47,21 +50,40 @@ export default function CreateEvent({ user }) {
 
   //Load default event image
   useEffect(() => {
-    const loadDefaultImage = async () => {
+    const loadEventData = async () => {
       try {
-        const fetchDefaultImage = await fetch('/sunset.jpg')
-        const defaultImage = await fetchDefaultImage.blob()
-        setImageFile(defaultImage)
-        setImgURL(URL.createObjectURL(defaultImage))
-        setIsLoading(false)
+        const res = await fetch(`/api/events/${eid}`, {
+          headers: {
+            'Authorization': `Bearer ${user.accessToken}`,
+            'Content-Type': 'application/json',
+          }
+        })
+
+        const data = await res.json()
+        if (!res.ok) throw data
+
+        const eventImgRef = ref(storage, `images/events/${user.uid}/${eid}`)
+        const url = await getDownloadURL(eventImgRef)
+        setImgURL(url)
+
+        setTitle(data.title)
+        setDetails(data.details)
+        setLocation(data.locationName)
+        setCoordinates({ lng: data.location.coordinates[0], lat: data.location.coordinates[1] })
+        const [fromDateTmp, fromTimeTmp] = utcTimestampToLocalDate(data.eventStart, data.timeZoneId)
+        const [toDateTmp, toTimeTmp] = utcTimestampToLocalDate(data.eventEnd, data.timeZoneId)
+        setFromDate(fromDateTmp)
+        setFromTime(fromTimeTmp)
+        setToDate(toDateTmp)
+        setToTime(toTimeTmp)
       } catch (error) {
         console.log(error)
       } finally {
         setIsLoading(false)
       }
     }
-    loadDefaultImage()
-  }, [])
+    loadEventData()
+  }, [user, eid])
 
   const handleImageUpload = async (file) => {
     try {
@@ -76,7 +98,7 @@ export default function CreateEvent({ user }) {
     }
   }
 
-  const handleCreateEvent = async () => {
+  const handleUpdateEvent = async () => {
     try {
       if (!verifyTitle(title)) {
         errorHandler('event/title-invalid')
@@ -99,8 +121,8 @@ export default function CreateEvent({ user }) {
       const eventStartISO = `${fromDate.getFullYear()}-${pad(fromDate.getMonth() + 1)}-${pad(fromDate.getDate())}T${fromTime}`
       const eventEndISO = `${toDate.getFullYear()}-${pad(toDate.getMonth() + 1)}-${pad(toDate.getDate())}T${toTime}`
 
-      var res = await fetch('/api/events/create', {
-        method: 'POST',
+      var res = await fetch(`/api/events/update/${eid}`, {
+        method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${user.accessToken}`,
           'Content-Type': 'application/json',
@@ -123,15 +145,14 @@ export default function CreateEvent({ user }) {
         throw error
       }
 
-      var data = await res.json()
-      const eventId = data.eventId
+      //upload image to firebase storage if a new image was uploaded
+      if (imageFile) {
+        const storageRef = ref(storage, `/images/events/${user.uid}/${eid}`)
+        await uploadBytes(storageRef, imageFile)
+      }
 
-      //upload image to firebase storage
-      const storageRef = ref(storage, `/images/events/${user.uid}/${eventId}`)
-      await uploadBytes(storageRef, imageFile)
-
-      toast.success('Event created successfully!')
-      navigate(`/events/${eventId}`)
+      toast.success('Event updated successfully!')
+      navigate(`/events/${eid}`)
     } catch(error) {
       errorHandler(error.code)
       console.log(error)
@@ -140,9 +161,9 @@ export default function CreateEvent({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className="w-screen min-h-screen bg-white">
-      { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
-      <div className="flex flex-row w-screen pb-8 pr-4">
+    <div className="w-screen min-h-screen bg-white overflow-x-hidden overflow-y-hidden">
+      { (profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
+      <div className="flex flex-row w-screen">
         <div className="flex flex-col w-md items-center mt-20 p-4 px-10">
           <img src={imgURL} className='rounded-xl w-72 h-72'/>
           <label>
@@ -156,8 +177,8 @@ export default function CreateEvent({ user }) {
             </div>
           </label>
         </div>
-        <form className="w-[30rem] ml-6 mr-8">
-          <legend className='text-5xl font-bold p-2 mt-12 font-tinos'> Create An Event </legend>
+        <form className="w-[30rem] ml-6 mr-8 mb-4">
+          <legend className='text-5xl font-bold p-2 mt-12 font-tinos'> Edit Event </legend>
 
           <fieldset className="flex flex-col items-center mt-8 p-2 w-full">
             <ul className="flex flex-col w-full">
@@ -168,7 +189,7 @@ export default function CreateEvent({ user }) {
 
               <li className="flex flex-col w-full mb-6">
                 <label className='text-lg'>Location</label>
-                <Autocomplete setSelectedLocation={setLocation} setCoordinates={setCoordinates}/>
+                <Autocomplete selectedLocation={location} setSelectedLocation={setLocation} setCoordinates={setCoordinates}/>
               </li>
 
               <li className="flex flex-col w-full mb-6 mt-2">
@@ -212,8 +233,8 @@ export default function CreateEvent({ user }) {
           </fieldset>
 
           <div className="flex items-center justify-center w-full">
-            <button type="button" className="bg-gradient-to-r from-cyan to-gold text-white m-4 px-4 py-2  rounded-lg text-lg cursor-pointer hover:opacity-90" onClick={handleCreateEvent}>
-              Create Event
+            <button type="button" className="bg-gradient-to-l from-cyan to-gold text-white m-4 px-4 py-2  rounded-lg text-lg cursor-pointer hover:opacity-90" onClick={handleUpdateEvent}>
+              Update Event
             </button>
           </div>
         </form>

@@ -36,6 +36,7 @@ function Authentication({ user }) {
     if (user?.emailVerified) navigate('/home')
   }, [user, navigate])
 
+  //handle toggle between sign-up and sign-in
   const handleAuthChange = () => {
     setName('')
     setEmail('')
@@ -57,6 +58,7 @@ function Authentication({ user }) {
 
       if (error.code) throw error
 
+      // Create user in the database
       const res = await fetch('/api/users/create', {
         method: 'POST',
         headers: {
@@ -95,7 +97,6 @@ function Authentication({ user }) {
       setIsSignUpActive(false)
 
     } catch (error) {
-      console.log(error)
       errorHandler(error.code)
     } finally {
       setIsLoading(false)
@@ -106,15 +107,13 @@ function Authentication({ user }) {
     try {
       setIsLoading(true)
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      console.log(userCredential.user)
       if (!userCredential.user.emailVerified) toast.error("Please verify your email before attempting to sign in")
       else {
-        if (user) await user.reload() //used for email verification
+        if (user && !user.emailVerified) await user.reload() //used for email verification
         navigate('/home')
       }
     }
     catch(error) {
-      console.log(error)
       errorHandler(error.code)
     }
     finally {
@@ -133,13 +132,12 @@ function Authentication({ user }) {
       setShowModal(false)
       toast.success("Please check your email to change your password.")
     } catch (error) {
-      console.log(error)
       errorHandler(error.code)
     }
   }
 
   return (
-    <div className='absolute h-full w-full flex flex-col'>
+    <div className='absolute min-h-screen w-screen flex flex-col bg-white overflow-x-hidden overflow-y-hidden'>
       <h1 className='flex-1/12 font-sacramento bg-gold text-center text-6xl py-4 text-white cursor-default'>
         Link2Day
       </h1>

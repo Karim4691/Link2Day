@@ -2,20 +2,19 @@ import express from 'express'
 import validateTokenID from '../middlewares/validateTokenID.js'
 import db from '../mongodb.js'
 import auth from '../firebase.js'
-import getTimeZoneData from '../middlewares/getTimeZoneData.js'
+import getTimeZoneID from '../middlewares/getTimeZoneID.js'
 
 
 const router = express.Router()
 const users = db.collection('users')
 
-router.post('/create', getTimeZoneData, async (req, res) => {
+router.post('/create', getTimeZoneID, async (req, res) => {
   var { displayName, email, password, locationName, location, timeZoneId } = req.body
   try {
     const user = await auth.createUser({
       email: email,
       password: password,
       })
-    console.log('User created in Firebase:', user.uid)
   
     await users.insertOne({
       _id: user.uid,
@@ -29,14 +28,12 @@ router.post('/create', getTimeZoneData, async (req, res) => {
       eventsHosted: [],
       eventsJoined: [],
     })
-    console.log('user created in MongoDB')
     res.status(201).json({ uid : user.uid })
   } catch(error) {
       res.status(500).json({
         message : error.message, 
         code : error.code
       })
-      console.log(error)
   }
   
 })
@@ -63,7 +60,6 @@ router.get('/:uid', (req, res) => {
     })
   })
   .catch((error) => {
-    console.log('Error fetching user data:', error)
     res.status(500).json( {
       message: error.message,
       code: error.code
@@ -71,7 +67,7 @@ router.get('/:uid', (req, res) => {
   })
 })
 
-router.patch('/update-profile', validateTokenID, getTimeZoneData, async (req, res) => {
+router.patch('/update-profile', validateTokenID, getTimeZoneID, async (req, res) => {
   try {
     const uid  = req.uid
     const updates = req.body
@@ -84,7 +80,6 @@ router.patch('/update-profile', validateTokenID, getTimeZoneData, async (req, re
   }
   catch(error) {
     res.status(400).json({ message: error.message, code: error.code})
-    console.log(error)
   }
 }) 
 

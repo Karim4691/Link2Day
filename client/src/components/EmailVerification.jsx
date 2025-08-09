@@ -7,7 +7,7 @@ export default function EmailVerification ({ user }) {
 
   useEffect(() => {
     if (cooldown === 0) return
-    const interval = setInterval(() => {
+    const interval = setInterval(() => { // Decrease cooldown every second
       setCooldown((prev) => prev - 1)
     }, 1000)
     return () => clearInterval(interval)

@@ -27,6 +27,12 @@ export function verifyTitle(title) {
   return title.trim().length > 0 && title.length <= 200
 }
 
+/*
+@param {string} fromDate - Start date in YYYY-MM-DD format
+@param {string} fromTime - Start time in HH:MM format
+@param {string} toDate - End date in YYYY-MM-DD format
+@param {string} toTime - End time in HH:MM format
+*/
 export function verifyEventTime(fromDate, fromTime, toDate, toTime) {
   if (!toDate || !toTime || !fromDate || !fromTime) return false
 

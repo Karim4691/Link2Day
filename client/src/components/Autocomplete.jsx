@@ -37,8 +37,6 @@ function Autocomplete( { selectedLocation, setSelectedLocation, setCoordinates, 
       const lat_lon = await getLatLng(results[0])
       setSelectedLocation(selected)
       setCoordinates(lat_lon)
-      console.log('Coordinates: ', lat_lon)
-      console.log(selected)
     }
     catch (error) {
       setLocation('')

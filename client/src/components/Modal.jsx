@@ -2,6 +2,11 @@ import { IoIosClose } from "react-icons/io"
 import { useEffect } from "react"
 import { useRef } from "react"
 
+/*
+@param {boolean} open - Whether the modal is open or not
+@param {function} onClose - Function to call when the modal should close
+@param {ReactNode} children - The content to display inside the modal
+*/
 export default function Modal( { open, onClose, children }) {
   const modal = useRef(null)
   useEffect(() => {
