@@ -14,6 +14,7 @@ import { FaCalendarXmark } from "react-icons/fa6"
 import { RiDeleteBack2Line } from "react-icons/ri"
 import Modal from '../components/Modal.jsx'
 import UserCard from '../components/UserCard.jsx'
+import NoAttendeesFound from '../components/NoAttendeesFound.jsx'
 
 export default function Event ( { user } ) {
   const { eid } = useParams()
@@ -172,13 +173,13 @@ export default function Event ( { user } ) {
       <Modal open={showAttendeesModal} onClose={() => setShowAttendeesModal(false)}>
         <div className='flex flex-col text-lg'>
           <h2 className='text-2xl font-bold mb-4'>Attendees</h2>
-          <div className='flex flex-col w-full max-h-96 overflow-y-auto'>
+          <div className='flex flex-col w-full max-h-xl'>
             {attendees.length > 0 ? (
               attendees.map((attendee) => (
                 <UserCard key={attendee._id} user={attendee} />
               ))
             ) : (
-              <p className='text-gray-500'>No attendees yet</p>
+              <NoAttendeesFound />
             )}
           </div>
         </div>
