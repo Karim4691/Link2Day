@@ -10,9 +10,9 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'https://link2day-6cb7c.uw.r.appspot.com',
         changeOrigin: true,
-        secure: false,
+        secure: true,
         ws: true,
       }
     }
