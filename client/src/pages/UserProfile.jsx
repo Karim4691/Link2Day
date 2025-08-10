@@ -11,6 +11,7 @@ import Modal from '../components/Modal.jsx'
 import { verifyBio, verifyName } from '../utils/validators.js'
 import Autocomplete from '../components/Autocomplete.jsx'
 import { verifyFileSize } from '../utils/validators.js'
+import toast from 'react-hot-toast'
 
 function Profile( { user }) {
   const { uid } = useParams()
@@ -78,6 +79,7 @@ function Profile( { user }) {
     if (!file) return
     const objectUrl = URL.createObjectURL(file)
     setProfileImgUrl(objectUrl)
+    setCurrentUserProfileUrl(objectUrl) //also update current user's profile image url
 
     return () => URL.revokeObjectURL(objectUrl)
   }, [file])
@@ -126,6 +128,7 @@ function Profile( { user }) {
         bio: bio
       }))
       setShowModal(false)
+      toast.success('Profile updated!')
     }
     catch(error) {
       console.log(error)

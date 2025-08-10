@@ -130,7 +130,7 @@ export default function CreateEvent({ user }) {
       const storageRef = ref(storage, `/images/events/${user.uid}/${eventId}`)
       await uploadBytes(storageRef, imageFile)
 
-      toast.success('Event created successfully!')
+      toast.success('Event created!')
       navigate(`/events/${eventId}`)
     } catch(error) {
       errorHandler(error.code)

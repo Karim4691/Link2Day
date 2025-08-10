@@ -13,7 +13,7 @@ function Header( { user, profileImgUrl } ) {
 
   const handleSignOut = () => {
     signOut(auth)
-      .then(() => navigate('/'))
+      .then(() => navigate('/home'))
       .catch((error) => console.log(error))
   }
 

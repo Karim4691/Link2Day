@@ -52,6 +52,7 @@ export default function EditEvent({ user }) {
   useEffect(() => {
     const loadEventData = async () => {
       try {
+        if (!user) return
         const res = await fetch(`/api/events/${eid}`, {
           headers: {
             'Authorization': `Bearer ${user.accessToken}`,
@@ -151,7 +152,7 @@ export default function EditEvent({ user }) {
         await uploadBytes(storageRef, imageFile)
       }
 
-      toast.success('Event updated successfully!')
+      toast.success('Event updated!')
       navigate(`/events/${eid}`)
     } catch(error) {
       errorHandler(error.code)

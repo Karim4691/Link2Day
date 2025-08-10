@@ -15,6 +15,7 @@ import { RiDeleteBack2Line } from "react-icons/ri"
 import Modal from '../components/Modal.jsx'
 import UserCard from '../components/UserCard.jsx'
 import NoAttendeesFound from '../components/NoAttendeesFound.jsx'
+import { toast } from 'react-hot-toast'
 
 export default function Event ( { user } ) {
   const { eid } = useParams()
@@ -116,6 +117,7 @@ export default function Event ( { user } ) {
       const eventImgRef = ref(storage, `images/events/${user.uid}/${event._id}`)
       await deleteObject(eventImgRef)
 
+      toast.success('Event deleted')
       navigate('/home')
     } catch (error) {
       console.error(error)

@@ -135,6 +135,16 @@ router.delete('/:eventId', validateTokenID, async (req, res) => {
     if (event.hostedBy !== uid) return res.status(403).json({ message: "You are not authorized to delete this event", code: 'event/unauthorized' })
 
     await events.deleteOne({ _id: new ObjectId(eventId) })
+    //remove event from user's hosted events
+    await users.updateOne(
+      { _id: uid },
+      { $pull: { eventsHosted: new ObjectId(eventId) } }
+    )
+    //remove event from attendees' attended events
+    await users.updateMany(
+      { eventsJoined: new ObjectId(eventId) },
+      { $pull: { eventsJoined: new ObjectId(eventId) } }
+    )
     res.status(204).end()
   } catch (error) {
     res.status(500).json({ message: "Failed to delete event", code: error.code })
