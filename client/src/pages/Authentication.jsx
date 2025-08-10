@@ -59,7 +59,7 @@ function Authentication({ user }) {
       if (error.code) throw error
 
       // Create user in the database
-      const res = await fetch('/api/users/create', {
+      const res = await fetch('https://link2day-6cb7c.uw.r.appspot.com/api/users/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

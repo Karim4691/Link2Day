@@ -62,7 +62,7 @@ function Home({ user }) {
       try {
         var [ lng, lat ] = [null, null]
         if (user) {
-          const res = await fetch(`/api/users/${user.uid}`)
+          const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/users/${user.uid}`)
           const data = await res.json()
           if (!res.ok) throw data
           setLocation(data.locationName)
@@ -75,7 +75,7 @@ function Home({ user }) {
         setIsLoading(false)
 
         //fetch events near user
-        const eventsRes = await fetch(`/api/events/find?lng=${lng}&lat=${lat}&maxDistance=50`)
+        const eventsRes = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/find?lng=${lng}&lat=${lat}&maxDistance=50`)
         const eventsData = await eventsRes.json()
         if (!eventsRes.ok) throw eventsData
 
@@ -98,7 +98,7 @@ function Home({ user }) {
     try {
       setEventsLoading(true)
       // Search for events
-      const res = await fetch(`/api/events/find?lng=${coordinates.lng}&lat=${coordinates.lat}&maxDistance=${maxDistance}&searchEvents=${searchEvents}`)
+      const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/find?lng=${coordinates.lng}&lat=${coordinates.lat}&maxDistance=${maxDistance}&searchEvents=${searchEvents}`)
       const data = await res.json()
       if (!res.ok) throw data
 

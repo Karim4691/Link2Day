@@ -50,7 +50,7 @@ export default function Event ( { user } ) {
     const fetchEventAndHost = async () => {
       try {
         //fetch event
-        var res = await fetch(`/api/events/${eid}`)
+        var res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/${eid}`)
         var data = await res.json()
         if (!res.ok) throw data
         setEvent(data)
@@ -84,7 +84,7 @@ export default function Event ( { user } ) {
     const fetchAttendees = async () => {
       if (event) {
         try {
-          const res = await fetch(`/api/events/attendees/${event._id}`)
+          const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/attendees/${event._id}`)
           const data = await res.json()
           if (!res.ok) throw data
           setAttendees(await Promise.all(data.map(async (attendee) => { //get attendee image URLs
@@ -104,7 +104,7 @@ export default function Event ( { user } ) {
     try {
       //remove event from database
       const idToken = await user.getIdToken()
-      const res = await fetch(`/api/events/${event._id}`, {
+      const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/${event._id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ export default function Event ( { user } ) {
   const handleAttend = async () => {
     try {
       const idToken = await user.getIdToken()
-      const res = await fetch(`/api/events/attend/${event._id}`, {
+      const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/attend/${event._id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ export default function Event ( { user } ) {
   const handleUnattend = async () => {
     try {
       const idToken = await user.getIdToken()
-      const res = await fetch(`/api/events/unattend/${event._id}`, {
+      const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/unattend/${event._id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

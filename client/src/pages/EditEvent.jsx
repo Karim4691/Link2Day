@@ -53,7 +53,7 @@ export default function EditEvent({ user }) {
     const loadEventData = async () => {
       try {
         if (!user) return
-        const res = await fetch(`/api/events/${eid}`, {
+        const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/${eid}`, {
           headers: {
             'Authorization': `Bearer ${user.accessToken}`,
             'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export default function EditEvent({ user }) {
       const eventStartISO = `${fromDate.getFullYear()}-${pad(fromDate.getMonth() + 1)}-${pad(fromDate.getDate())}T${fromTime}`
       const eventEndISO = `${toDate.getFullYear()}-${pad(toDate.getMonth() + 1)}-${pad(toDate.getDate())}T${toTime}`
 
-      var res = await fetch(`/api/events/update/${eid}`, {
+      var res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/update/${eid}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${user.accessToken}`,

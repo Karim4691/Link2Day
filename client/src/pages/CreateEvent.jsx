@@ -99,7 +99,7 @@ export default function CreateEvent({ user }) {
       const eventStartISO = `${fromDate.getFullYear()}-${pad(fromDate.getMonth() + 1)}-${pad(fromDate.getDate())}T${fromTime}`
       const eventEndISO = `${toDate.getFullYear()}-${pad(toDate.getMonth() + 1)}-${pad(toDate.getDate())}T${toTime}`
 
-      var res = await fetch('/api/events/create', {
+      var res = await fetch('https://link2day-6cb7c.uw.r.appspot.com/api/events/create', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${user.accessToken}`,
