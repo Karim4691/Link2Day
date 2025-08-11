@@ -62,7 +62,7 @@ function YourEvents({ user }) {
     fetchEvents()
   }, [selectedOpt, user])
 
-  if (!user?.emailVerified) navigate('/home')
+  if (!user?.emailVerified) navigate('/')
 
   if (isLoading) return <Loading />
   return (

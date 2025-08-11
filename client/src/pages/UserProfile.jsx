@@ -217,7 +217,7 @@ function Profile( { user }) {
           </div>
         </div>
 
-        <div className='flex flex-col bg-white mt-20 text-md ml-20 mr-8 h-2/3 w-96 md:w-xl lg:w-2xl rounded-md p-2 overflow-x-scroll'>
+        <div className='flex flex-col bg-white mt-20 text-md ml-20 mr-8 h-2/3 w-48 sm:w-96 md:w-xl lg:w-2xl rounded-md p-2 overflow-x-scroll'>
           <div className='flex flex-row justify-around items-center'>
             <ul className='flex flex-col items-center justify-center'>
               <li className='text-5xl'>

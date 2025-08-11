@@ -13,7 +13,9 @@ function Header( { user, profileImgUrl } ) {
 
   const handleSignOut = () => {
     signOut(auth)
-      .then(() => navigate('/home'))
+      .then(() => {
+        navigate('/')
+      })
       .catch((error) => console.log(error))
   }
 
@@ -40,7 +42,7 @@ function Header( { user, profileImgUrl } ) {
           <Link to="/" className="mr-4 text-white hover:text-gold">
             Log in
           </Link>
-          <Link to="/?sign-up=true" className="p-3 px-4 rounded-md bg-gold text-white text-sm hover:opacity-80">
+          <Link to="/?sign-up=true" className="p-3 mx-4 rounded-md bg-gold text-white text-sm hover:opacity-80">
             Sign up
           </Link>
         </div>

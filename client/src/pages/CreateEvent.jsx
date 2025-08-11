@@ -27,7 +27,7 @@ export default function CreateEvent({ user }) {
 
   // redirect if user is not properly authenticated
   const navigate = useNavigate()
-  if (!user?.emailVerified) navigate('/home')
+  if (!user?.emailVerified) navigate('/')
 
   //Load user profile image
   useEffect(() => {
