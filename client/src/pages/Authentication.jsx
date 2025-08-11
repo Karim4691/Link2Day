@@ -59,7 +59,7 @@ function Authentication({ user }) {
       if (error.code) throw error
 
       // Create user in the database
-      const res = await fetch('https://link2day-6cb7c.uw.r.appspot.com/api/users/create', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/users/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -97,6 +97,7 @@ function Authentication({ user }) {
       setIsSignUpActive(false)
 
     } catch (error) {
+      console.log(error)
       errorHandler(error.code)
     } finally {
       setIsLoading(false)
@@ -138,8 +139,8 @@ function Authentication({ user }) {
 
   return (
     <div className='absolute min-h-screen w-screen flex flex-col bg-white overflow-y-auto overflow-x-auto'>
-      <div className='flex justify-center items-center h-36 bg-gold cursor-default w-full'>
-        <h1 className='font-sacramento text-6xl text-white'>
+      <div className='flex justify-center items-center h-36 bg-black cursor-default w-full'>
+        <h1 className='font-sacramento text-6xl text-gold'>
           Link2Day
         </h1>
       </div>

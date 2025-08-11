@@ -52,7 +52,7 @@ function Profile( { user }) {
     setIsLoading(true)
     async function fetchUserData () {
       try {
-        const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/users/${uid}`)
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${uid}`)
         const data = await res.json()
         if (data.code !== undefined) throw data // Handle error from API
         setUserData(data)
@@ -107,7 +107,7 @@ function Profile( { user }) {
       }
       if (bio !== userData.bio) updates.bio = bio
       const idToken = await user.getIdToken()
-      var res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/users/update-profile`, {
+      var res = await fetch(`${import.meta.env.VITE_API_URL}/users/update-profile`, {
         method : 'PATCH',
         headers: {
           Authorization: `Bearer ${idToken}`,

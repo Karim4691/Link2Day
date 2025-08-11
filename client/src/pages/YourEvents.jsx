@@ -42,9 +42,9 @@ function YourEvents({ user }) {
       setEventsLoading(true)
       try {
         var res
-        if (selectedOpt === "hosting") res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/hosting/${user.uid}`)
-        else if (selectedOpt === "attending") res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/attending/${user.uid}`)
-        else res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/past/${user.uid}`)
+        if (selectedOpt === "hosting") res = await fetch(`${import.meta.env.VITE_API_URL}/events/hosting/${user.uid}`)
+        else if (selectedOpt === "attending") res = await fetch(`${import.meta.env.VITE_API_URL}/events/attending/${user.uid}`)
+        else res = await fetch(`${import.meta.env.VITE_API_URL}/events/past/${user.uid}`)
 
         const data = await res.json()
         if (!res.ok) throw data

@@ -62,7 +62,7 @@ function Home({ user }) {
       try {
         var [ lng, lat ] = [null, null]
         if (user) {
-          const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/users/${user.uid}`)
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.uid}`)
           const data = await res.json()
           if (!res.ok) throw data
           setLocation(data.locationName)
@@ -75,7 +75,7 @@ function Home({ user }) {
         setIsLoading(false)
 
         //fetch events near user
-        const eventsRes = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/find?lng=${lng}&lat=${lat}&maxDistance=50`)
+        const eventsRes = await fetch(`${import.meta.env.VITE_API_URL}/events/find?lng=${lng}&lat=${lat}&maxDistance=50`)
         const eventsData = await eventsRes.json()
         if (!eventsRes.ok) throw eventsData
 
@@ -98,7 +98,7 @@ function Home({ user }) {
     try {
       setEventsLoading(true)
       // Search for events
-      const res = await fetch(`https://link2day-6cb7c.uw.r.appspot.com/api/events/find?lng=${coordinates.lng}&lat=${coordinates.lat}&maxDistance=${maxDistance}&searchEvents=${searchEvents}`)
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/events/find?lng=${coordinates.lng}&lat=${coordinates.lat}&maxDistance=${maxDistance}&searchEvents=${searchEvents}`)
       const data = await res.json()
       if (!res.ok) throw data
 
@@ -114,6 +114,8 @@ function Home({ user }) {
       setEventsLoading(false)
     }
   }
+
+
 
 
   if (isLoading) return <Loading />
@@ -165,7 +167,7 @@ function Home({ user }) {
             <NoEventsFound />
           </div>
         )}
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-2 mt-8 w-11/12 h-full">
+        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-2 mt-8 w-fit h-full">
           {eventsLoading && <EventSkeleton nb_cards={6} />}
           {!eventsLoading && events.length !== 0 &&
             events.map((event) => {

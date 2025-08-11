@@ -30,10 +30,10 @@ router.post('/create', getTimeZoneID, async (req, res) => {
     })
     res.status(201).json({ uid : user.uid })
   } catch(error) {
-      res.status(500).json({
-        message : error.message, 
-        code : error.code
-      })
+    console.error(error)
+    res.status(500).json({
+      error
+    })
   }
   
 })
