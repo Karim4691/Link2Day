@@ -40,15 +40,15 @@ function Header( { user, profileImgUrl } ) {
           <Link to="/" className="mr-4 text-white hover:text-gold">
             Log in
           </Link>
-          <Link to="/?sign-up=true" className="p-3 mx-4 rounded-md bg-gold text-white text-sm hover:opacity-80">
+          <Link to="/?sign-up=true" className="p-3 px-4 rounded-md bg-gold text-white text-sm hover:opacity-80">
             Sign up
           </Link>
         </div>
       }
 
       { user?.emailVerified &&
-        <div className='absolute h-full right-0 flex items-center justify-end'>
-          <button className="hover:text-gold ml-2 text-3xl cursor-pointer font-normal pr-8" onClick={() => setSelectProfile(!selectProfile)} ref={profile}>
+        <div className='absolute h-full w-fit right-0 flex items-center justify-end'>
+          <button className="hover:text-gold ml-2 text-3xl cursor-pointer font-normal mr-8" onClick={() => setSelectProfile(!selectProfile)} ref={profile}>
             <img src={profileImgUrl} className="size-16 rounded-full"/>
           </button>
         </div>

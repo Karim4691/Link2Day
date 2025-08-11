@@ -131,9 +131,9 @@ function Home({ user }) {
 
         <div className="flex flex-row items-center justify-evenly w-11/12 mb-2">
           <div className="relative flex flex-row w-xl">
-            <input placeholder="Search for events" className="w-32 md:w-64 border border-gray-300 py-2 p-1 rounded-l-md shadow-inner focus:outline-gold text-sm hover:border-gray-500" type="text" value={searchEvents} onChange={(e) => setSearchEvents(e.target.value)} />
+            <input placeholder="Search for events" className="w-32 md:w-64 border border-gray-300 py-2 p-1 rounded-l-md shadow-inner focus:outline-none focus:border-gold text-sm hover:border-gray-500" type="text" value={searchEvents} onChange={(e) => setSearchEvents(e.target.value)} />
             <Autocomplete selectedLocation={location} setSelectedLocation={setLocation} setCoordinates={setCoordinates}
-              inputClassName={"relative w-32 md:w-64 border border-gray-300 py-2 p-1 rounded-r-md shadow-inner focus:outline-gold text-sm hover:border-gray-500 pr-14"} placeholder={"Neighborhood"} showIcon onIconClick={handleSearch}/>
+              inputClassName={"relative w-32 md:w-64 border border-gray-300 py-2 p-1 rounded-r-md shadow-inner focus:outline-none focus:border-gold text-sm hover:border-gray-500 pr-14"} placeholder={"Neighborhood"} showIcon onIconClick={handleSearch}/>
           </div>
 
           <button ref={maxDistanceRef} type="button" className="relative bg-gold text-white py-2 px-4 rounded-2xl cursor-pointer z-10" onClick={() => setSelectMaxDistance(!selectMaxDistance)}>
@@ -167,12 +167,12 @@ function Home({ user }) {
             <NoEventsFound />
           </div>
         )}
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-2 mt-8 w-fit h-full">
+        <ul className="grid grid-cols-1 xl:grid-cols-2 gap-2 mt-8 w-fit min-h-full">
           {eventsLoading && <EventSkeleton nb_cards={6} />}
           {!eventsLoading && events.length !== 0 &&
             events.map((event) => {
               return <li key={event._id}>
-                <EventCard event={event} key={event._id} />
+                <EventCard event={event} />
               </li>
             })
           }

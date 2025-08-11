@@ -1,3 +1,7 @@
+import dotenv from 'dotenv'
+
+dotenv.config()
+
 const getTimeZoneData = async (req, res, next) => {
   try {
     if (!req.body.location) { // If no location is provided, skip fetching timezone data
@@ -7,8 +11,8 @@ const getTimeZoneData = async (req, res, next) => {
 
     const [lng, lat] = req.body.location.coordinates
 
-    const timeZoneData = await fetch(`https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${Math.floor(Date.now() / 1000)}&key=AIzaSyC53hlEdD8qRZJ-fEQoyV3zgxZhxYYA15I`)
-    
+    const timeZoneData = await fetch(`https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${Math.floor(Date.now() / 1000)}&key=${process.env.GOOGLE_API_KEY}`)
+
     const { timeZoneId } = await timeZoneData.json()
     req.body.timeZoneId = timeZoneId
     next()

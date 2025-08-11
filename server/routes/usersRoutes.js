@@ -22,7 +22,7 @@ router.post('/create', getTimeZoneID, async (req, res) => {
       email: email,
       locationName,
       location, 
-      bio : "Hey there! I'm new to Link2Day. Feel free to reach out if you want to connect.", 
+      bio : "Hey! I'm fresh on Link2Day and excited to meet awesome people. Don't be shy — say hi and let's connect!", 
       timeZoneId: timeZoneId,
       photoUrl : `/images/profile/${user.uid}`,
       eventsHosted: [],
