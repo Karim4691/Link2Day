@@ -92,7 +92,7 @@ function Authentication({ user }) {
       const storageRef = ref(storage, `images/profile/${uid}`)
       await uploadBytes(storageRef, defaultImage)
 
-      toast.success('Account created successfully! Please verify your email address (check your inbox/spam folder.)')
+      toast.success('Account created successfully! Please verify your email address (check your spam folder.)')
       navigate('/') // Switch to sign-in
       setIsSignUpActive(false)
 
@@ -108,7 +108,7 @@ function Authentication({ user }) {
     try {
       setIsLoading(true)
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      if (!userCredential.user.emailVerified) toast.error("Please verify your email before attempting to sign in (check your inbox/spam folder.)")
+      if (!userCredential.user.emailVerified) toast.error("Please verify your email before attempting to sign in (check your spam folder.)")
       else {
         if (user && !user.emailVerified) await user.reload() //used for email verification
         navigate('/home')
@@ -131,7 +131,7 @@ function Authentication({ user }) {
     try {
       await sendPasswordResetEmail(auth, resetPasswordEmail)
       setShowModal(false)
-      toast.success("Please check your inbox/spam folder to change your password.")
+      toast.success("Please check your spam folder to change your password.")
     } catch (error) {
       errorHandler(error.code)
     }

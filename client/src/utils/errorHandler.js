@@ -56,7 +56,7 @@ const ErrorHandler = (code) => {
       toast.error("The credential is already in use.")
       break
     case "auth/invalid-email-verified":
-      toast.error("Please verify your email address before attempting to sign in (check your inbox/spam folder.)")
+      toast.error("Please verify your email address before attempting to sign in (check your spam folder.)")
       break
     case "auth/invalid-id-token":
       toast.error("Unable to validate the ID token. Please try again.")
