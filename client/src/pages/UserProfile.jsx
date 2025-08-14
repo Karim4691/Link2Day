@@ -156,7 +156,7 @@ function Profile( { user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className='w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto'>
+    <div className='w-fit min-h-screen bg-gray-100 pb-4'>
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={currentUserProfileUrl} /> : <Header user={user} />}
 
       {user?.uid === uid && <Modal open={showModal} onClose={() => setShowModal(false)}>
@@ -185,9 +185,9 @@ function Profile( { user }) {
       </Modal>
       }
 
-      <div className='bg-gray-100 h-screen pt-10 md:pt-20 pl-20 flex flex-row'>
-        <div className='flex flex-col items-center'>
-          <img src={profileImgUrl} className='rounded-full w-24 h-24 md:w-48 md:h-48'/>
+      <div className='min-h-screen py-10 px-10 lg:px-20 flex flex-col lg:flex-row items-center lg:items-start'>
+        <div className='flex flex-col items-center w-full'>
+          <img src={profileImgUrl} className='rounded-full w-48 h-48'/>
           {user?.uid === uid &&
           <label>
             <input className='hidden' type='file' accept='image/*'
@@ -200,7 +200,7 @@ function Profile( { user }) {
             </div>
           </label>
           }
-          <div className='flex flex-col py-3 px-2 mt-8 text-md bg-white rounded-md w-48 md:w-96 overflow-y-scroll'>
+          <div className='flex flex-col py-3 px-2 mt-8 text-md bg-white rounded-md lg:w-96'>
             <div className='text-3xl mx-1 mb-4'>
               {userData.name}
             </div>
@@ -217,7 +217,7 @@ function Profile( { user }) {
           </div>
         </div>
 
-        <div className='flex flex-col bg-white mt-20 text-md ml-20 mr-8 h-2/3 w-48 sm:w-96 md:w-xl lg:w-2xl rounded-md p-2 overflow-x-scroll'>
+        <div className='flex flex-col bg-white mt-20 lg:ml-10 w-full lg:w-4/5 rounded-md p-2 overflow-y-scroll'>
           <div className='flex flex-row justify-around items-center'>
             <ul className='flex flex-col items-center justify-center'>
               <li className='text-5xl'>
@@ -238,9 +238,9 @@ function Profile( { user }) {
             </ul>
           </div>
 
-          <hr className='mx-16 my-5'/>
+          <hr className='mx-8 lg:mx-16 my-5'/>
 
-          <div className='flex flex-col mx-10 my-5'>
+          <div className='flex flex-col mx-5 lg:mx-10 my-0 lg:my-5'>
             <div className='text-3xl mb-3'>
               Biography
             </div>

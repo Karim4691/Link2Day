@@ -138,7 +138,7 @@ function Authentication({ user }) {
   }
 
   return (
-    <div className='absolute min-h-screen w-screen flex flex-col bg-white overflow-y-auto overflow-x-auto'>
+    <div className='absolute min-h-screen w-screen flex flex-col bg-white'>
       <div className='flex justify-center items-center h-36 bg-black cursor-default w-full'>
         <h1 className='font-sacramento text-6xl text-gold'>
           Link2Day
@@ -156,82 +156,84 @@ function Authentication({ user }) {
         </div>
       </Modal>
 
-      <form className='flex flex-col flex-11/12 items-center'>
-        {isSignUpActive &&
-          <legend className='text-3xl mt-20 w-2/6'>Create an account
-            <br /> <div className='text-lg text-gray-500'>Please enter your details</div>
-          </legend>
-        }
-        {!isSignUpActive &&
-        <legend className='text-3xl mt-20 w-2/6'>Welcome back
-          <br />
-          <div className='text-lg text-gray-500'>Please enter your details</div>
-        </legend>}
-
-        <fieldset className='flex flex-col mt-4 w-2/6'>
-          <ul className='flex flex-col'>
-            { isSignUpActive &&
-              <li className='flex flex-col mb-6'>
-                <label className='text-lg'>Your name</label>
-                <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={name} type='text' onChange={(e) => setName(e.target.value)}/>
-              </li>
-            }
-            { isSignUpActive &&
-              <li className='flex flex-col mb-6'>
-                <label className='text-lg'>Location</label>
-                <Autocomplete setSelectedLocation={setSelectedLocation} setCoordinates={setCoordinates}/>
-              </li>
-            }
-            <li className='flex flex-col'>
-              <label className='text-lg' htmlFor='email'>Email address</label>
-              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={email} type='text' onChange={(e) => setEmail(e.target.value)}/>
-              { user && !user.emailVerified && !isSignUpActive &&
-                <div className="flex justify-end">
-                  <EmailVerification user={user}/>
-                </div>
-              }
-            </li>
-            <li className='flex flex-col mt-6'>
-              <label className='text-lg' htmlFor='password'>Password</label>
-              <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={password} type='password' onChange={(e) => setPassword(e.target.value)}/>
-            </li>
-          </ul>
-
+      <form className='flex flex-col justify-center items-center'>
+        <div className='flex flex-col items-start'>
           {isSignUpActive &&
-          <button className='relative bg-black text-white rounded-md my-6 py-2 text-lg cursor-pointer hover:opacity-80' type='button' onClick={handleSignUp}>
-            { isLoading &&
-            <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
-              <img src='/spin.svg' className="w-6"/>
-            </div>
-            }
-            Sign up
-          </button>}
-
-          {!isSignUpActive &&
-            <div className='flex justify-end'>
-              <button type='button' className='text-gold underline text-lg mt-4 cursor-pointer' onClick={() => setShowModal(true)}>
-                Forgot password
-              </button>
-            </div>
+            <legend className='text-3xl mt-20'>Create an account
+              <br /> <div className='text-lg text-gray-500'>Please enter your details</div>
+            </legend>
           }
           {!isSignUpActive &&
-          <button className='relative bg-black text-white rounded-md my-6 py-2 text-lg cursor-pointer hover:opacity-80' type='button' onClick={handleSignIn}>
-            { isLoading &&
-            <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
-              <img src='/spin.svg' className="w-6"/>
-            </div>
+          <legend className='text-3xl mt-20'>Welcome back
+            <br />
+            <div className='text-lg text-gray-500'>Please enter your details</div>
+          </legend>}
+
+          <fieldset className='flex flex-col mt-4 w-64 sm:w-72 md:w-96'>
+            <ul className='flex flex-col'>
+              { isSignUpActive &&
+                <li className='flex flex-col mb-6'>
+                  <label className='text-lg'>Your name</label>
+                  <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={name} type='text' onChange={(e) => setName(e.target.value)}/>
+                </li>
+              }
+              { isSignUpActive &&
+                <li className='flex flex-col mb-6'>
+                  <label className='text-lg'>Location</label>
+                  <Autocomplete setSelectedLocation={setSelectedLocation} setCoordinates={setCoordinates}/>
+                </li>
+              }
+              <li className='flex flex-col'>
+                <label className='text-lg' htmlFor='email'>Email address</label>
+                <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={email} type='text' onChange={(e) => setEmail(e.target.value)}/>
+                { user && !user.emailVerified && !isSignUpActive &&
+                  <div className="flex justify-end">
+                    <EmailVerification user={user}/>
+                  </div>
+                }
+              </li>
+              <li className='flex flex-col mt-6'>
+                <label className='text-lg' htmlFor='password'>Password</label>
+                <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={password} type='password' onChange={(e) => setPassword(e.target.value)}/>
+              </li>
+            </ul>
+
+            {isSignUpActive &&
+            <button className='relative bg-black text-white rounded-md my-6 py-2 text-lg cursor-pointer hover:opacity-80' type='button' onClick={handleSignUp}>
+              { isLoading &&
+              <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
+                <img src='/spin.svg' className="w-6"/>
+              </div>
+              }
+              Sign up
+            </button>}
+
+            {!isSignUpActive &&
+              <div className='flex justify-end'>
+                <button type='button' className='text-gold underline text-lg mt-4 cursor-pointer' onClick={() => setShowModal(true)}>
+                  Forgot password
+                </button>
+              </div>
             }
-            Sign in
-          </button>}
-        </fieldset>
+            {!isSignUpActive &&
+            <button className='relative bg-black text-white rounded-md my-6 py-2 text-lg cursor-pointer hover:opacity-80' type='button' onClick={handleSignIn}>
+              { isLoading &&
+              <div className='absolute h-full right-3 top-0 flex items-center justify-center'>
+                <img src='/spin.svg' className="w-6"/>
+              </div>
+              }
+              Sign in
+            </button>}
+          </fieldset>
+        </div>
         {isSignUpActive &&
-        <div className='flex flex-row items-center justify-center w-2/6'>
+        <div className='flex flex-row items-center justify-center'>
           <div className='text-lg text-black/80 pr-3'>
             Already have an account?</div>
           <a className='text-gold underline text-lg my-3 cursor-pointer' onClick={handleAuthChange}>Log in</a>
         </div>}
         {!isSignUpActive &&
-        <div className='flex flex-row items-center justify-center w-2/6'>
+        <div className='flex flex-row items-center justify-center'>
           <div className='text-lg text-black/80 pr-3'> Don't have an account?</div>
           <a className='text-gold text-lg underline my-3 cursor-pointer' onClick={handleAuthChange}>Sign up</a>
         </div>}

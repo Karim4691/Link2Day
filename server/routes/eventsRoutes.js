@@ -8,6 +8,7 @@ import convertISOToUTC from '../middlewares/convertISOToUTC.js'
 const router = express.Router()
 const users = db.collection('users')
 const events = db.collection('events')
+const max_nb_tuples = 100 // Maximum number of events/attendees to return in a single query
 
 router.post('/create', validateTokenID, getTimeZoneID, convertISOToUTC, async (req, res) => {
   const { title, details, locationName, location, eventStartISO, eventEndISO, eventStart, eventEnd, timeZoneId } = req.body
@@ -103,9 +104,12 @@ router.get('/find', async (req, res) => {
 
     var eventsMatched
     if(eventsQuery.$search.compound.must.length > 0) eventsMatched = await events.aggregate([eventsQuery, {
-      $match: { eventEnd: { $gt: Date.now() } } // only show events that haven't ended yet
-    }]).sort({ eventStart: 1 }).toArray()
-    else eventsMatched = await events.find({ eventEnd: { $gt: Date.now() } }).sort({ eventStart: 1 }).toArray()
+      $match: { eventEnd: { $gt: Date.now() }}}, // only show events that haven't ended yet
+      { $limit:max_nb_tuples }
+    ]).sort({ eventStart: 1 }).toArray()
+    else eventsMatched = await events.find({ eventEnd: { $gt: Date.now() } }).limit(max_nb_tuples)
+    .sort({ eventStart: 1 })
+    .toArray()
 
     res.status(200).json(eventsMatched)
   } catch (error) {
@@ -154,7 +158,7 @@ router.delete('/:eventId', validateTokenID, async (req, res) => {
 router.get('/hosting/:uid', async (req, res) => {
   const { uid } = req.params
   try {
-    const eventsHosting = await events.find({ hostedBy: uid, eventEnd: { $gt: Date.now() } }).sort({ eventStart: 1 }).toArray()
+    const eventsHosting = await events.find({ hostedBy: uid, eventEnd: { $gt: Date.now() } }).limit(max_nb_tuples).sort({ eventStart: 1 }).toArray()
     res.status(200).json(eventsHosting)
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch hosted events", code: error.code })
@@ -164,7 +168,7 @@ router.get('/hosting/:uid', async (req, res) => {
 router.get('/attending/:uid', async (req, res) => {
   const { uid } = req.params
   try {
-    const attendingEvents = await events.find({ attendees: { $in: [uid] }, eventEnd: { $gt: Date.now() } }).sort({ eventStart: 1 }).toArray()
+    const attendingEvents = await events.find({ attendees: { $in: [uid] }, eventEnd: { $gt: Date.now() } }).limit(max_nb_tuples).sort({ eventStart: 1 }).toArray()
     res.status(200).json(attendingEvents)
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch attending events", code: error.code })
@@ -174,8 +178,8 @@ router.get('/attending/:uid', async (req, res) => {
 router.get('/past/:uid', async (req, res) => {
   const { uid } = req.params
   try {
-    const pastEvents = await events.find({ eventEnd: { $lt: Date.now() }, 
-    $or: [ { hostedBy: uid }, { attendees: { $in: [uid] } } ] }).sort({ eventStart: -1 }).toArray()
+    const pastEvents = await events.find({ eventEnd: { $lt: Date.now() },
+    $or: [ { hostedBy: uid }, { attendees: { $in: [uid] } } ] }).limit(max_nb_tuples).sort({ eventStart: -1 }).toArray()
     res.status(200).json(pastEvents)
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch past events", code: error.code })
@@ -265,7 +269,7 @@ router.get('/attendees/:eventId', async (req, res) => {
 
     const attendees = await users.find(
       { _id: { $in: event.attendees }},
-      {projection: {name: 1, _id: 1, bio:1}}).toArray()
+      {projection: {name: 1, _id: 1, bio:1}}).limit(max_nb_tuples).toArray()
     res.status(200).json(attendees)
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch attendees", code: error.code })

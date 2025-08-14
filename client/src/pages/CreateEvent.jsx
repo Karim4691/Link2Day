@@ -140,27 +140,26 @@ export default function CreateEvent({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className="w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto">
+    <div className="w-fit min-h-screen bg-white">
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
-      <div className="flex flex-row w-screen pb-8 pr-4">
-        <div className="flex flex-col w-md items-center mt-20 p-4 px-10">
-          <img src={imgURL} className='rounded-xl w-72 h-72'/>
-          <label>
-            <input className='hidden' type='file' accept='image/*'
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) handleImageUpload(file)
-              }} id='img'/>
-            <div className='bg-cyan text-white rounded-lg mt-6 px-6 py-3 text-lg cursor-pointer hover:opacity-80'>
-              Edit Picture
-            </div>
-          </label>
-        </div>
-        <form className="w-[30rem] ml-6 mr-8">
-          <legend className='text-5xl font-bold p-2 mt-12 font-tinos'> Create An Event </legend>
-
-          <fieldset className="flex flex-col items-center mt-8 p-2 w-full">
-            <ul className="flex flex-col w-full">
+      <div className="flex flex-col items-center overflow-auto w-full h-full">
+        <h2 className='text-5xl font-bold p-2 mt-12 font-tinos text-center'> Create An Event </h2>
+        <div className="flex flex-col lg:flex-row pb-8 px-4">
+          <div className="flex flex-col items-center mt-10 p-2 px-10 shrink-0">
+            <img src={imgURL} className='rounded-xl size-56 md:size-72'/>
+            <label>
+              <input className='hidden' type='file' accept='image/*'
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) handleImageUpload(file)
+                }} id='img'/>
+              <div className='bg-cyan text-white rounded-lg mt-6 px-6 py-3 text-lg cursor-pointer hover:opacity-80'>
+                Edit Picture
+              </div>
+            </label>
+          </div>
+          <fieldset className="flex flex-col items-center mt-8 p-2 w-72 lg:w-96">
+            <ul className="flex flex-col w-72 md:w-96">
               <li className="flex flex-col w-full mb-6">
                 <label className='text-lg'>Title</label>
                 <input className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500' value={title} type='text' onChange={(e) => setTitle(e.target.value)} />
@@ -172,8 +171,8 @@ export default function CreateEvent({ user }) {
               </li>
 
               <li className="flex flex-col w-full mb-6 mt-2">
-                <div className="flex flex-row-start mt-2">
-                  <div className="flex flex-col w-1/2 mr-3">
+                <div className="flex flex-col lg:flex-row mt-2">
+                  <div className="flex flex-col w-full lg:w-1/2 mr-0 lg:mr-3">
                     <label className="text-2xl font-bold mb-1">From</label>
                     <Calendar value={fromDate} onChange={(e) => setFromDate(e.value)} dateFormat="dd/mm/yy" showIcon hideOnDateTimeSelect readOnlyInput/>
                     <div className="flex justify-center items-center">
@@ -187,7 +186,7 @@ export default function CreateEvent({ user }) {
                       />
                     </div>
                   </div>
-                  <div className="flex flex-col w-1/2 ml-3">
+                  <div className="flex flex-col w-full lg:w-1/2 ml-0 lg:ml-3">
                     <label className="text-2xl font-bold mb-1">To</label>
                     <Calendar value={toDate} onChange={(e) => setToDate(e.target.value)} showIcon dateFormat="dd/mm/yy" readOnlyInput hideOnDateTimeSelect/>
                     <div className="flex justify-center items-center">
@@ -209,16 +208,16 @@ export default function CreateEvent({ user }) {
                 <textarea className='border border-gray-300 mt-1 p-1 rounded-md shadow-lg focus:outline-none focus:border-gold text-lg hover:border-gray-500 w-full overflow-y-scroll overflow-x-hidden' value={details} onChange={(e) => setDetails(e.target.value)}/>
               </li>
             </ul>
-          </fieldset>
 
-          <div className="flex items-center justify-center w-full">
-            <button type="button" className="bg-gradient-to-r from-cyan to-gold text-white m-4 px-4 py-2  rounded-lg text-lg cursor-pointer hover:opacity-90" onClick={handleCreateEvent}>
-              Create Event
-            </button>
+            <div className="flex items-center justify-center w-full">
+              <button type="button" className="bg-gradient-to-r from-cyan to-gold text-white m-4 px-4 py-2  rounded-lg text-lg cursor-pointer hover:opacity-90" onClick={handleCreateEvent}>
+                Create Event
+              </button>
+            </div>
+          </fieldset>
+          <div className="lg:flex flex-col items-center justify-center mt-4 ml-4 hidden shrink-0">
+            <img src='/create.svg' className="size-96" />
           </div>
-        </form>
-        <div className="lg:flex flex-col items-center justify-center mt-4 ml-4 hidden">
-          <img src='/create.svg' className="size-96" />
         </div>
       </div>
     </div>

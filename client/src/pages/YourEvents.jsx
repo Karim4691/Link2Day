@@ -66,11 +66,11 @@ function YourEvents({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className='w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto'>
+    <div className='w-fit min-h-screen '>
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
-      <div className='flex flex-row w-full'>
-        <div className='flex flex-col items-center w-3xl'>
-          <div className='flex flex-col justify-evenly bg-gray-100 h-56 w-40 md:w-80 rounded-lg p-2 px-10 mt-32'>
+      <div className='flex flex-col md:flex-row items-center md:items-start justify-start md:justify-center overflow-auto bg-white'>
+        <div className='flex flex-col items-center'>
+          <div className='flex flex-col justify-evenly bg-gray-100 h-56 w-64 rounded-lg p-2 px-10 mt-10 ml-10 md:mt-32 md:mr-20'>
             <p className={`font-bold cursor-pointer w-fit
               ${selectedOpt === "hosting" ? "text-gold" : "text-gray-500"}`} onClick={() => setSelectedOpt("hosting")}>
               Hosting
@@ -86,10 +86,10 @@ function YourEvents({ user }) {
           </div>
         </div>
 
-        <div className='w-full'>
-          <div className='flex flex-row justify-between items-baseline'>
-            <h2 className='text-5xl font-bold p-2 mt-12 ml-6 font-tinos'> Your Events </h2>
-            <Link to="/your-events/create" className='flex flex-row items-center justify-center p-2 text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80'>
+        <div className='flex flex-col mt-12'>
+          <div className='flex flex-row items-center'>
+            <h2 className='text-4xl md:text-5xl font-bold p-2 ml-6 font-tinos'> Your Events </h2>
+            <Link to="/your-events/create" className='flex flex-row items-center justify-center p-2 text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80 ml-5 lg:ml-20'>
               <FaPlus className='p-1 size-6' />
               <p className='p-1'>Create An Event</p>
             </Link>
@@ -98,7 +98,7 @@ function YourEvents({ user }) {
           {!eventsLoading && events.length === 0 && (
             <NoEventsFound />
           )}
-          <ul className='p-2 mt-10 ml-6'>
+          <ul className='p-2 mt-10 ml-6 flex flex-col'>
             {eventsLoading && <EventSkeleton nb_cards={5} />}
             {!eventsLoading && events.length !== 0 &&
               events.map((event) => {

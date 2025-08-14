@@ -120,20 +120,20 @@ function Home({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <section className="relative min-w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto">
+    <div className="relative w-fit min-h-screen">
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
 
-      <div className="flex flex-col w-full h-full pl-12 mt-24 pb-12">
+      <div className="flex flex-col w-full h-full pl-12 pt-24 pb-12 mr-4 bg-white overflow-auto">
         <h2 className="font-semibold font-tinos py-2 mb-8">
           {userName && <p className="mb-16 text-5xl">Welcome back, {userName.split(' ')[0]}!</p>}
           <p className="text-3xl">Upcoming Events</p>
         </h2>
 
-        <div className="flex flex-row items-center justify-evenly w-11/12 mb-2">
-          <div className="relative flex flex-row w-xl">
-            <input placeholder="Search for events" className="w-32 md:w-64 border border-gray-300 py-2 p-1 rounded-l-md shadow-inner focus:outline-none focus:border-gold text-sm hover:border-gray-500" type="text" value={searchEvents} onChange={(e) => setSearchEvents(e.target.value)} />
+        <div className="flex flex-col md:flex-row items-center justify-evenly w-11/12 mb-2">
+          <div className="relative flex flex-row max-w-xl mb-4 md:mb-0 mr-4">
+            <input placeholder="Search for events" className="max-w-48 md:max-w-64 border border-gray-300 py-2 p-1 rounded-l-md shadow-inner focus:outline-none focus:border-gold text-sm hover:border-gray-500" type="text" value={searchEvents} onChange={(e) => setSearchEvents(e.target.value)} />
             <Autocomplete selectedLocation={location} setSelectedLocation={setLocation} setCoordinates={setCoordinates}
-              inputClassName={"relative w-32 md:w-64 border border-gray-300 py-2 p-1 rounded-r-md shadow-inner focus:outline-none focus:border-gold text-sm hover:border-gray-500 pr-14"} placeholder={"Neighborhood"} showIcon onIconClick={handleSearch}/>
+              inputClassName={"relative max-w-48 md:max-w-64 border border-gray-300 py-2 p-1 rounded-r-md shadow-inner focus:outline-none focus:border-gold text-sm hover:border-gray-500 pr-14"} placeholder={"Neighborhood"} showIcon onIconClick={handleSearch}/>
           </div>
 
           <button ref={maxDistanceRef} type="button" className="relative bg-gold text-white py-2 px-4 rounded-2xl cursor-pointer z-10" onClick={() => setSelectMaxDistance(!selectMaxDistance)}>
@@ -167,7 +167,7 @@ function Home({ user }) {
             <NoEventsFound />
           </div>
         )}
-        <ul className="grid grid-cols-1 xl:grid-cols-2 gap-2 mt-8 w-fit min-h-full">
+        <ul className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6 mt-8 w-full">
           {eventsLoading && <EventSkeleton nb_cards={6} />}
           {!eventsLoading && events.length !== 0 &&
             events.map((event) => {
@@ -178,7 +178,7 @@ function Home({ user }) {
           }
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 

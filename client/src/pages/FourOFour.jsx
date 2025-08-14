@@ -5,7 +5,7 @@ import { FaLemon } from "react-icons/fa"
 export default function FourOFour() {
   const navigate = useNavigate()
   return (
-    <div className="flex flex-row justify-around h-screen bg-white overflow-x-hidden">
+    <div className="flex flex-row w-fit justify-around h-screen bg-white overflow-auto">
       <div className="flex items-center justify-center h-full">
         <TbGhost2Filled className="size-72 text-cyan" />
       </div>

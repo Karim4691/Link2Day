@@ -163,7 +163,7 @@ export default function Event ( { user } ) {
 
   if (isLoading) return <Loading />
   return (
-    <div className='w-screen min-h-screen bg-white overflow-y-auto overflow-x-auto'>
+    <div className='w- min-h-screen bg-white'>
       <Modal open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
         <div className='flex flex-col items-center justify-center text-lg'>
           <p className='mb-2 text-gray-500'>Are you sure?</p>
@@ -188,20 +188,21 @@ export default function Event ( { user } ) {
       </Modal>
 
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
-      <h2 className='w-screen h-48 pl-4 py-4 flex flex-col justify-center items-start p-2 border-b-2 border-gray-300'>
+      <h2 className='w-screen min-h-48 pl-4 py-4 flex flex-col justify-center items-start p-2 border-b-2 border-gray-300'>
         <div className='mb-4 text-5xl font-tinos min-h-1/2'>{event.title}</div>
-        <div className='flex flex-row items-center w-full h-1/2 justify-between'>
+        <div className='flex flex-col lg:flex-row items-center w-full h-1/2 justify-between'>
           <div className='flex flex-row items-center'>
-            <Link to={`/users/${event.hostedBy}`}>
+            <Link to={`/users/${event.hostedBy}`} className='flex flex-row items-center'>
               <img src={hostImgURL} className='rounded-full w-20 h-20 mr-2' />
+              <div className='flex flex-col text-lg'>
+                <div>Hosted by</div>
+                <div className='font-bold'>{event.hostName}</div>
+              </div>
             </Link>
-            <div className='flex flex-col text-lg'>
-              <div>Hosted by</div>
-              <div className='font-bold'>{event.hostName}</div></div>
           </div>
 
           {user?.uid === event.hostedBy &&
-          <div className='flex flex-row items-center mr-4'>
+          <div className='flex flex-row items-center mr-4 mt-4 lg:mt-0'>
             <Link to={`/events/edit/${event._id}`}>
               <div className='mr-12 rounded-lg bg-cyan p-4 text-white hover:opacity-80 flex flex-row items-center'> <AiFillEdit className='inline mr-2' /> Edit Event </div>
             </Link>
@@ -210,37 +211,35 @@ export default function Event ( { user } ) {
           </div>}
 
           {user && user.uid !== event.hostedBy && !isAttending && (
-            <button className='p-2 mr-4 text-cyan hover:opacity-80 cursor-pointer flex flex-row items-center text-2xl' onClick={() => handleAttend()}> <FaCalendarCheck className='inline mr-2' /> Attend
+            <button className='p-2 mt-2 lg:mt-0 mr-0 lg:mr-4 text-cyan hover:opacity-80 cursor-pointer flex flex-row items-center text-2xl' onClick={() => handleAttend()}> <FaCalendarCheck className='inline mr-2' /> Attend
             </button>
           )}
 
           {user && user.uid !== event.hostedBy && isAttending && (
-            <button className='p-2 mr-4 text-red-500 hover:text-red-600 cursor-pointer flex flex-row items-center text-2xl' onClick={() => handleUnattend()}> <FaCalendarXmark className='inline mr-2' /> Unattend
+            <button className='p-2 mt-2 lg:mt-0 mr-0 lg:mr-4 text-red-500 hover:text-red-600 cursor-pointer flex flex-row items-center text-2xl' onClick={() => handleUnattend()}> <FaCalendarXmark className='inline mr-2' /> Unattend
             </button>
           )}
         </div>
       </h2>
 
-      <div className='flex flex-row w-screen min-h-screen bg-gray-100 p-4 pt-10'>
-        <div className='relative flex flex-col min-w-2/3 min-h-full'>
-          <img src={eventImgURL} className='rounded-xl w-3/4 h-full mb-4'/>
-          <div className='text-lg p-4 flex flex-col items-start justify-start w-3/4'>
+      <div className='flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-center w-screen min-h-screen bg-gray-100 p-4 pt-10 overflow-auto'>
+        <div className='relative w-96 md:w-xl lg:w-3xl flex flex-col'>
+          <img src={eventImgURL} className='rounded-xl w-full mb-4'/>
+          <div className='text-lg p-4 flex flex-col items-start justify-start'>
             <button className='text-cyan mt-2 text-right hover:underline text-lg cursor-pointer font-tinos w-full' onClick={() => {setShowAttendeesModal(true)}}> View Attendees </button>
             <h3 className='text-2xl font-bold mb-2'>Details</h3>
             <p className='text-[16px] overflow-y-scroll'>{event.details}</p>
           </div>
         </div>
 
-        <div className='flex flex-col w-1/3 h-full items-center'>
-          <div className='bg-white w-96 h-48 rounded-lg flex flex-col p-4 mt-20 justify-evenly pb-4'>
-            <div className='flex flex-row justify-start items-center'>
-              <IoLocationSharp className='size-8 text-gray-300 mr-2 shrink-0' />
-              <span className='text-lg'>{event.locationName}</span>
-            </div>
-            <div className='flex flex-row justify-start mt-2 items-center'>
-              <GoClock className='size-8 text-gray-300 mr-2 shrink-0' />
-              <span className='text-lg'>{utcTimestampToLocal(event.eventStart, event.timeZoneId)} {" "} - <br />{utcTimestampToLocal(event.eventEnd, event.timeZoneId)} {" "} </span>
-            </div>
+        <div className='bg-white min-w-96 h-48 rounded-lg flex flex-col p-4 lg:ml-20 mt-10 lg:mt-20 justify-evenly pb-4 lg:mr-6'>
+          <div className='flex flex-row justify-start items-center'>
+            <IoLocationSharp className='size-8 text-gray-300 mr-2 shrink-0' />
+            <span className='text-lg'>{event.locationName}</span>
+          </div>
+          <div className='flex flex-row justify-start mt-2 items-center'>
+            <GoClock className='size-8 text-gray-300 mr-2 shrink-0' />
+            <span className='text-lg'>{utcTimestampToLocal(event.eventStart, event.timeZoneId)} {" "} - <br />{utcTimestampToLocal(event.eventEnd, event.timeZoneId)} {" "} </span>
           </div>
         </div>
       </div>
