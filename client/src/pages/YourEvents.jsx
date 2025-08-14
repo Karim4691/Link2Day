@@ -87,7 +87,7 @@ function YourEvents({ user }) {
         </div>
 
         <div className='flex flex-col mt-12'>
-          <div className='flex flex-row items-center'>
+          <div className='flex flex-row items-center mb-6'>
             <h2 className='text-4xl md:text-5xl font-bold p-2 ml-6 font-tinos'> Your Events </h2>
             <Link to="/your-events/create" className='flex flex-row items-center justify-center p-2 text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80 ml-5 lg:ml-20'>
               <FaPlus className='p-1 size-6' />
@@ -98,7 +98,7 @@ function YourEvents({ user }) {
           {!eventsLoading && events.length === 0 && (
             <NoEventsFound />
           )}
-          <ul className='p-2 mt-10 ml-6 flex flex-col'>
+          <ul className='p-2 ml-6 flex flex-col'>
             {eventsLoading && <EventSkeleton nb_cards={5} />}
             {!eventsLoading && events.length !== 0 &&
               events.map((event) => {

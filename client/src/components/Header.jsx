@@ -30,7 +30,7 @@ function Header( { user, profileImgUrl } ) {
   }, [])
 
   return (
-    <div className="relative pt-4 px-10 py-4 flex flex-row justify-start sm:justify-center items-center border-b w-screen h-32 bg-black">
+    <div className="relative pt-4 px-10 py-4 flex flex-row justify-start sm:justify-center items-center border-b min-w-screen h-32 bg-black">
       <Link to="/home">
         <h1 className="font-sacramento text-gold text-5xl cursor-pointer pr-5">
           Link2Day

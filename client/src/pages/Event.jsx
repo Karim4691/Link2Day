@@ -223,23 +223,23 @@ export default function Event ( { user } ) {
       </h2>
 
       <div className='flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-center w-screen min-h-screen bg-gray-100 p-4 pt-10 overflow-auto'>
-        <div className='relative w-96 md:w-xl lg:w-3xl flex flex-col'>
+        <div className='relative w-72 sm:w-96 md:w-xl lg:w-3xl flex flex-col'>
           <img src={eventImgURL} className='rounded-xl w-full mb-4'/>
-          <div className='text-lg p-4 flex flex-col items-start justify-start'>
+          <div className='text-lg my-4 flex flex-col items-start justify-start'>
             <button className='text-cyan mt-2 text-right hover:underline text-lg cursor-pointer font-tinos w-full' onClick={() => {setShowAttendeesModal(true)}}> View Attendees </button>
             <h3 className='text-2xl font-bold mb-2'>Details</h3>
             <p className='text-[16px] overflow-y-scroll'>{event.details}</p>
           </div>
         </div>
 
-        <div className='bg-white min-w-96 h-48 rounded-lg flex flex-col p-4 lg:ml-20 mt-10 lg:mt-20 justify-evenly pb-4 lg:mr-6'>
+        <div className='bg-white w-72 text-sm sm:text-lg sm:min-w-96 h-48 rounded-lg flex flex-col p-4 lg:ml-20 mt-10 lg:mt-20 justify-evenly pb-4 lg:mr-6'>
           <div className='flex flex-row justify-start items-center'>
             <IoLocationSharp className='size-8 text-gray-300 mr-2 shrink-0' />
-            <span className='text-lg'>{event.locationName}</span>
+            <span>{event.locationName}</span>
           </div>
           <div className='flex flex-row justify-start mt-2 items-center'>
             <GoClock className='size-8 text-gray-300 mr-2 shrink-0' />
-            <span className='text-lg'>{utcTimestampToLocal(event.eventStart, event.timeZoneId)} {" "} - <br />{utcTimestampToLocal(event.eventEnd, event.timeZoneId)} {" "} </span>
+            <span>{utcTimestampToLocal(event.eventStart, event.timeZoneId)} {" "} - <br />{utcTimestampToLocal(event.eventEnd, event.timeZoneId)} {" "} </span>
           </div>
         </div>
       </div>
