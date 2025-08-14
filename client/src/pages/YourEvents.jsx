@@ -66,7 +66,7 @@ function YourEvents({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className='w-fit min-h-screen '>
+    <div className='w-fit min-h-screen'>
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
       <div className='flex flex-col md:flex-row items-center md:items-start justify-start md:justify-center overflow-auto bg-white'>
         <div className='flex flex-col items-center'>
@@ -87,7 +87,7 @@ function YourEvents({ user }) {
         </div>
 
         <div className='flex flex-col mt-12'>
-          <div className='flex flex-row items-center mb-6'>
+          <div className='flex flex-row items-center mb-6 min-w-[500px]'>
             <h2 className='text-4xl md:text-5xl font-bold p-2 ml-6 font-tinos'> Your Events </h2>
             <Link to="/your-events/create" className='flex flex-row items-center justify-center p-2 text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80 ml-5 lg:ml-20'>
               <FaPlus className='p-1 size-6' />
