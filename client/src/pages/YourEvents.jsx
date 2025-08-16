@@ -66,11 +66,11 @@ function YourEvents({ user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className='w-fit min-h-screen'>
+    <div className='w-fit min-h-screen bg-white'>
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={profileImgUrl} /> : <Header user={user} />}
-      <div className='flex flex-col md:flex-row items-center md:items-start justify-start md:justify-center overflow-auto bg-white'>
+      <div className='flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-center overflow-auto'>
         <div className='flex flex-col items-center'>
-          <div className='flex flex-col justify-evenly bg-gray-100 h-56 w-64 rounded-lg p-2 px-10 mt-10 ml-10 md:mt-32 md:mr-20'>
+          <div className='flex flex-col justify-evenly bg-gray-100 h-56 w-64 rounded-lg p-2 px-10 mt-10 lg:mt-32 lg:mr-20 mr-0 ml-0 lg:ml-10'>
             <p className={`font-bold cursor-pointer w-fit
               ${selectedOpt === "hosting" ? "text-gold" : "text-gray-500"}`} onClick={() => setSelectedOpt("hosting")}>
               Hosting
@@ -87,8 +87,8 @@ function YourEvents({ user }) {
         </div>
 
         <div className='flex flex-col mt-12'>
-          <div className='flex flex-row items-center mb-6 min-w-[500px]'>
-            <h2 className='text-4xl md:text-5xl font-bold p-2 ml-6 font-tinos'> Your Events </h2>
+          <div className='flex flex-row items-center mb-6'>
+            <h2 className='text-4xl lg:text-5xl font-bold p-2 ml-6 font-tinos'> Your Events </h2>
             <Link to="/your-events/create" className='flex flex-row items-center justify-center p-2 text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80 ml-5 lg:ml-20'>
               <FaPlus className='p-1 size-6' />
               <p className='p-1'>Create An Event</p>

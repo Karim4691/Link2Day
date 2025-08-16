@@ -163,7 +163,7 @@ export default function Event ( { user } ) {
 
   if (isLoading) return <Loading />
   return (
-    <div className='w- min-h-screen bg-white'>
+    <div className='min-h-screen bg-white'>
       <Modal open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
         <div className='flex flex-col items-center justify-center text-lg'>
           <p className='mb-2 text-gray-500'>Are you sure?</p>

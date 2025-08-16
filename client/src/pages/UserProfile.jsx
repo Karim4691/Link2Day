@@ -156,7 +156,7 @@ function Profile( { user }) {
 
   if (isLoading) return <Loading />
   return (
-    <div className='w-fit min-h-screen bg-gray-100 pb-4'>
+    <div className='w-fit min-h-screen h-full bg-gray-100 pb-4'>
       { (user && profileImgUrl) ? <Header user={user} profileImgUrl={currentUserProfileUrl} /> : <Header user={user} />}
 
       {user?.uid === uid && <Modal open={showModal} onClose={() => setShowModal(false)}>
@@ -185,8 +185,8 @@ function Profile( { user }) {
       </Modal>
       }
 
-      <div className='min-h-screen py-10 px-10 lg:px-20 flex flex-col lg:flex-row items-center lg:items-start'>
-        <div className='flex flex-col items-center w-full'>
+      <div className='min-h-screen py-10 px-10 lg:px-20 flex flex-col lg:flex-row items-center lg:items-start lg:justify-center justify-start'>
+        <div className='flex flex-col items-center'>
           <img src={profileImgUrl} className='rounded-full w-48 h-48'/>
           {user?.uid === uid &&
           <label>
@@ -217,7 +217,7 @@ function Profile( { user }) {
           </div>
         </div>
 
-        <div className='flex flex-col bg-white mt-20 lg:ml-10 w-full lg:w-4/5 rounded-md p-2 overflow-y-scroll'>
+        <div className='flex flex-col bg-white mt-20 lg:ml-10 w-[300px] md:w-[500px] lg:w-[800px] rounded-md p-2 overflow-y-scroll'>
           <div className='flex flex-row justify-around items-center'>
             <ul className='flex flex-col items-center justify-center'>
               <li className='text-5xl'>
@@ -244,7 +244,7 @@ function Profile( { user }) {
             <div className='text-3xl mb-3'>
               Biography
             </div>
-            <div className='text-md overflow-y-auto'>
+            <div className='text-md min-h-32 break-words'>
               {userData.bio}
             </div>
           </div>
