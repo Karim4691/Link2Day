@@ -54,7 +54,7 @@ function Profile( { user }) {
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${uid}`)
         const data = await res.json()
-        if (data.code !== undefined) throw data // Handle error from API
+        if (!res.ok) throw data.error // Handle error from API
         setUserData(data)
       } catch (error) {
         console.log(error)
@@ -117,8 +117,8 @@ function Profile( { user }) {
       })
 
       if (!res.ok) {
-        res = await res.json()
-        throw res
+        const data = await res.json()
+        throw data.error
       }
 
       setUserData((data) => ({

@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import errorHandler from '../utils/errorHandler.js'
 import Loading from '../components/Loading.jsx'
 import Header from '../components/Header.jsx'
@@ -29,6 +29,23 @@ export default function Event ( { user } ) {
   const [attendees, setAttendees] = useState([]) //list of attendees
   const [isAttending, setIsAttending] = useState(false) //state to check if the current user is attending the event (not used if the user is also the host)
   const navigate = useNavigate()
+  const fetchAttendees = useCallback(async () => {
+    if (event) {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/events/attendees/${event._id}`)
+        const data = await res.json()
+        if (!res.ok) throw data
+        setAttendees(await Promise.all(data.map(async (attendee) => { //get attendee image URLs
+          const imgRef = ref(storage, `images/profile/${attendee._id}`)
+          const url = await getDownloadURL(imgRef)
+          return { ...attendee, imgUrl: url }
+        })))
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }, [event])
+
 
   //Load user profile image
   useEffect(() => {
@@ -52,7 +69,7 @@ export default function Event ( { user } ) {
         //fetch event
         var res = await fetch(`${import.meta.env.VITE_API_URL}/events/${eid}`)
         var data = await res.json()
-        if (!res.ok) throw data
+        if (!res.ok) throw data.error
         setEvent(data)
 
         //set event img url
@@ -81,24 +98,8 @@ export default function Event ( { user } ) {
 
   //Fetch attendees
   useEffect(() => {
-    const fetchAttendees = async () => {
-      if (event) {
-        try {
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/events/attendees/${event._id}`)
-          const data = await res.json()
-          if (!res.ok) throw data
-          setAttendees(await Promise.all(data.map(async (attendee) => { //get attendee image URLs
-            const imgRef = ref(storage, `images/profile/${attendee._id}`)
-            const url = await getDownloadURL(imgRef)
-            return { ...attendee, imgUrl: url }
-          })))
-        } catch (error) {
-          console.error(error)
-        }
-      }
-    }
     fetchAttendees()
-  }, [event])
+  }, [event, fetchAttendees])
 
   const handleDelete = async () => {
     try {
@@ -136,6 +137,7 @@ export default function Event ( { user } ) {
         }
       })
       if (!res.ok) throw await res.json()
+      fetchAttendees() //refresh attendees list
       setIsAttending(true)
     } catch (error) {
       console.error(error)
@@ -153,7 +155,11 @@ export default function Event ( { user } ) {
           'Authorization': `Bearer ${idToken}`
         }
       })
-      if (!res.ok) throw await res.json()
+      if (!res.ok) {
+        const data = await res.json()
+        throw data.error
+      }
+      fetchAttendees() //refresh attendees list
       setIsAttending(false)
     } catch (error) {
       console.error(error)

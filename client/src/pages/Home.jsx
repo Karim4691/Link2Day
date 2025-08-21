@@ -77,7 +77,7 @@ function Home({ user }) {
         //fetch events near user
         const eventsRes = await fetch(`${import.meta.env.VITE_API_URL}/events/find?lng=${lng}&lat=${lat}&maxDistance=50`)
         const eventsData = await eventsRes.json()
-        if (!eventsRes.ok) throw eventsData
+        if (!eventsRes.ok) throw eventsData.error
 
         setEvents(await Promise.all(eventsData.map(async (event) => { //get event image URLs
           const imgRef = ref(storage, event.photoUrl)

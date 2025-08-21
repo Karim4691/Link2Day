@@ -142,8 +142,8 @@ export default function EditEvent({ user }) {
       })
 
       if (!res.ok) {
-        const error = await res.json()
-        throw error
+        const data = await res.json()
+        throw data.error
       }
 
       //upload image to firebase storage if a new image was uploaded

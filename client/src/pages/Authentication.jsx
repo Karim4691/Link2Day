@@ -78,9 +78,7 @@ function Authentication({ user }) {
 
       if (!res.ok) {
         const data = await res.json()
-        error.message = data.message
-        error.code = data.code
-        throw error
+        throw data.error
       }
 
       const { uid } = await res.json()

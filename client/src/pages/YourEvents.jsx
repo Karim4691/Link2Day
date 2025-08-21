@@ -47,7 +47,7 @@ function YourEvents({ user }) {
         else res = await fetch(`${import.meta.env.VITE_API_URL}/events/past/${user.uid}`)
 
         const data = await res.json()
-        if (!res.ok) throw data
+        if (!res.ok) throw data.error
         setEvents(await Promise.all(data.map(async (event) => {
           const imgRef = ref(storage, event.photoUrl)
           const url = await getDownloadURL(imgRef)

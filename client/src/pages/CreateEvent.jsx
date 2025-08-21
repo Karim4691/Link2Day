@@ -119,8 +119,8 @@ export default function CreateEvent({ user }) {
       })
 
       if (!res.ok) {
-        const error = await res.json()
-        throw error
+        const data = await res.json()
+        throw data.error
       }
 
       var data = await res.json()
