@@ -86,10 +86,10 @@ function YourEvents({ user }) {
           </div>
         </div>
 
-        <div className='flex flex-col mt-12'>
-          <div className='flex flex-row items-center mb-6'>
+        <div className='flex flex-col mt-12 min-w-[400px] sm:min-w-[448px] md:min-w-[608px]'>
+          <div className='flex flex-row items-center justify-between mb-6'>
             <h2 className='text-4xl lg:text-5xl font-bold p-2 ml-6 font-tinos'> Your Events </h2>
-            <Link to="/your-events/create" className='flex flex-row items-center justify-center p-2 text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80 ml-5 lg:ml-20'>
+            <Link to="/your-events/create" className='flex flex-row items-center justify-center p-2 text-white bg-cyan rounded-lg w-fit h-fit mr-10 hover:opacity-80'>
               <FaPlus className='p-1 size-6' />
               <p className='p-1'>Create An Event</p>
             </Link>

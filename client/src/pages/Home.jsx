@@ -129,7 +129,7 @@ function Home({ user }) {
           <p className="text-3xl">Upcoming Events</p>
         </h2>
 
-        <div className="flex flex-col md:flex-row items-center justify-evenly mb-2">
+        <div className="flex flex-col md:flex-row items-center justify-evenly mb-2 min-w-[344px]sm:min-w-[408px] md:min-w-[632px] xl:min-w-[1224px]">
           <div className="relative flex flex-row max-w-xl mb-4 md:mb-0 mr-4">
             <input placeholder="Search for events" className="max-w-48 md:max-w-64 border border-gray-300 py-2 p-1 rounded-l-md shadow-inner focus:outline-none focus:border-gold text-sm hover:border-gray-500" type="text" value={searchEvents} onChange={(e) => setSearchEvents(e.target.value)} />
             <Autocomplete selectedLocation={location} setSelectedLocation={setLocation} setCoordinates={setCoordinates}
