@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app
+spec: 
+  type : LoadBalancer
+  loadBalancerIP: 34.44.121.212
+  selector:
+    app: my-app
+  ports:
+  - port: 3000
+    targetPort: 3000
