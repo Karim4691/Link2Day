@@ -1,7 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: gke-deployment
+  labels:
+    app: my-app
 spec:
   selector:
     matchLabels:
@@ -12,7 +14,22 @@ spec:
         app: my-app
     spec:
       containers:
-      - name: backend
-        image: gcr.io/link2day-6cb7c/backend:$GITHUB_SHA
-        ports:
-        - containerPort: 3000
+        - name: my-app
+          image: "gcr.io/link2day-6cb7c/backend:TAG"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: FIREBASE_PROJECT_ID
+              value: "link2day-6cb7c"
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: GOOGLE_API_KEY
+            - name: ATLAS_URI
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: ATLAS_URI
